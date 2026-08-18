@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { FieldValue } from "firebase-admin/firestore";
-import { adminDb } from "@/lib/firebase-admin";
+import { getAdminDb } from "@/lib/firebase-admin";
 
 export const runtime = "nodejs";
 
@@ -37,7 +37,11 @@ function isValidEmail(email: string): boolean {
 
 export async function POST(request: NextRequest) {
   try {
+    const adminDb = getAdminDb();
+
     const body = (await request.json()) as QueryRequest;
+
+    // rest of your existing code...
 
     const name = cleanText(body.name);
     const email = cleanText(body.email).toLowerCase();
