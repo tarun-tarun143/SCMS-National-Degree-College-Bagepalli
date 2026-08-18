@@ -1,0 +1,87 @@
+SMART COLLEGE MANAGEMENT SYSTEM (SCMS)
+THE NATIONAL DEGREE COLLEGE, BAGEPALLI
+
+Developer showcase: Made by Tarun D
+
+REAL-TIME INSTALLATION
+
+1. Install Node.js 20+.
+2. Open this folder in CMD or PowerShell.
+3. Run:
+   npm install
+4. Create .env.local from .env.example.
+5. The included `.env.local` already contains the Firebase Web App configuration you provided.
+6. If you are sharing the project, keep `.env.local` private and do not commit it.
+7. In Firebase Authentication, enable Google.
+8. Create a Firestore database in production/native mode.
+9. Deploy the included Firestore rules and indexes:
+   firebase login
+   firebase use <your-project-id>
+   firebase deploy --only firestore
+10. Run:
+   npm run dev
+11. Open:
+   http://localhost:3000
+
+REAL LOGIN
+
+Open /login and use Continue with Google.
+
+A new Google account is registered as:
+role: pending
+status: pending
+
+It cannot enter Student, Faculty or Admin pages until the college provisions the account.
+
+FIRST ADMIN
+
+After the intended administrator has signed in once with Google, use the server-only bootstrap command.
+
+The administrator email is already set in `.env.local` as:
+ADMIN_EMAIL=tarund18303@gmail.com
+
+You still need to add the server-only Firebase Admin credentials:
+FIREBASE_PROJECT_ID
+FIREBASE_CLIENT_EMAIL
+FIREBASE_PRIVATE_KEY
+
+Then run:
+   npm run bootstrap:admin
+
+The service-account credentials must never be committed to Git.
+
+ADMIN USER MANAGEMENT
+
+After the first admin is activated, open:
+   /admin/users
+
+The admin can activate Pending Google accounts as Student, Faculty or Admin.
+The role is stored in Firestore and is enforced by the Firestore security rules.
+
+IMPORTANT
+
+Firebase Storage is not used anywhere in this project.
+Uploads are abstracted for local or Cloudinary use.
+
+PUBLIC WEBSITE
+/
+
+SECURE LOGIN
+/login
+
+STUDENT
+/student
+
+FACULTY
+/faculty
+
+ADMIN
+/admin
+
+HEALTH
+/api/health
+
+BUILD CHECK
+npm run typecheck
+npm run build
+npm start

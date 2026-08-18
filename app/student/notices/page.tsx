@@ -1,0 +1,3 @@
+"use client"; import GenericPage from "@/components/portal/GenericPage"; import {studentItems} from "@/components/portal/portalItems"; import {firestoreDb} from "@/lib/firebase/client"; import {useLiveCollection} from "@/hooks/useLiveCollection";
+type Notice={id:string;title?:string;category?:string;publishedAt?:string};
+export default function Notices(){const {data}=useLiveCollection<Notice>(firestoreDb,"notices",{filters:[{field:"status",op:"==",value:"published"}],limit:100}); return <GenericPage role="student" items={studentItems} title="Notices" description="Published college and academic announcements." rows={data.length?data.map(n=>`${n.category||"General"} · ${n.title||"Notice"} · ${n.publishedAt||"Recently"}`):["No published notices available."]}/> }

@@ -1,0 +1,2 @@
+import GenericPage from "@/components/portal/GenericPage"; import {studentItems} from "@/components/portal/portalItems";
+export default function Certificates(){return <GenericPage role="student" items={studentItems} title="Certificates" description="Request and track official college certificates." rows={["Bonafide Certificate","Study Certificate","Transfer Certificate","Character Certificate"]}/>}
