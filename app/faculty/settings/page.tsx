@@ -1,2 +1,16 @@
-import GenericPage from "@/components/portal/GenericPage"; import {facultyItems} from "@/components/portal/portalItems";
-export default function Page(){return <GenericPage role="faculty" items={facultyItems} title="Settings" description="Manage faculty preferences and security." rows={["Profile", "Notifications", "Security"]}/>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="faculty"
+      title="Settings"
+      description="Manage faculty portal preferences and account settings."
+      rows={[
+        "Account preferences",
+        "Notification preferences",
+        "Security settings",
+      ]}
+    />
+  );
+}

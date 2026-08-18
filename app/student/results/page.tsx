@@ -1,2 +1,16 @@
-import PortalShell from "@/components/portal/PortalShell"; import {studentItems} from "@/components/portal/portalItems"; import PageHeading from "@/components/portal/PageHeading";
-export default function Results(){const rows=[["Programming in Java",86,"A+",9],["Database Management Systems",78,"A",8],["Computer Networks",82,"A+",9],["English",89,"A+",9]];return <PortalShell role="student" items={studentItems} title="Results"><PageHeading title="Academic results" description="Current semester marks and grade points."/><div className="card overflow-hidden"><div className="grid grid-cols-[1.6fr_.6fr_.6fr_.6fr] gap-2 border-b border-slate-100 bg-slate-50 px-5 py-4 text-xs font-bold uppercase tracking-wider text-slate-500"><div>Subject</div><div>Marks</div><div>Grade</div><div>Point</div></div>{rows.map(r=><div key={r[0]} className="grid grid-cols-[1.6fr_.6fr_.6fr_.6fr] gap-2 border-b border-slate-100 px-5 py-5 text-sm"><div className="font-bold">{r[0]}</div><div>{r[1]}</div><div>{r[2]}</div><div className="font-black text-[var(--blue)]">{r[3]}</div></div>)}</div><div className="mt-6 grid gap-4 md:grid-cols-2"><div className="card p-6"><div className="text-sm font-semibold text-slate-500">SGPA</div><div className="mt-2 text-4xl font-black text-[var(--navy)]">8.67</div></div><div className="card p-6"><div className="text-sm font-semibold text-slate-500">CGPA</div><div className="mt-2 text-4xl font-black text-[var(--navy)]">8.46</div></div></div></PortalShell>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="student"
+      title="Results"
+      description="View your examination results and academic performance."
+      rows={[
+        "Current semester results",
+        "Previous examination results",
+        "Academic performance summary",
+      ]}
+    />
+  );
+}

@@ -1,2 +1,16 @@
-import GenericPage from "@/components/portal/GenericPage"; import {facultyItems} from "@/components/portal/portalItems";
-export default function Page(){return <GenericPage role="faculty" items={facultyItems} title="Events" description="Campus activities and event coordination." rows={["Orientation", "Cultural Showcase"]}/>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="faculty"
+      title="Events"
+      description="Review college events, programs and faculty activities."
+      rows={[
+        "Upcoming college events",
+        "Faculty event schedule",
+        "Recent event activity",
+      ]}
+    />
+  );
+}

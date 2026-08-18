@@ -1,2 +1,16 @@
-import PortalShell from "@/components/portal/PortalShell"; import {studentItems} from "@/components/portal/portalItems"; import PageHeading from "@/components/portal/PageHeading"; import Badge from "@/components/ui/Badge";
-export default function Fees(){return <PortalShell role="student" items={studentItems} title="Fees"><PageHeading title="Fee summary" description="Review fee balances and recorded payments. Real payment gateway integration is intentionally not enabled in the starter project."/><div className="grid gap-4 md:grid-cols-3"><div className="card p-6"><div className="text-sm font-semibold text-slate-500">Total fee</div><div className="mt-2 text-3xl font-black">₹48,500</div></div><div className="card p-6"><div className="text-sm font-semibold text-slate-500">Paid</div><div className="mt-2 text-3xl font-black text-emerald-600">₹40,000</div></div><div className="card p-6"><div className="text-sm font-semibold text-slate-500">Balance</div><div className="mt-2 text-3xl font-black text-amber-600">₹8,500</div></div></div><div className="card mt-6 overflow-hidden"><div className="border-b border-slate-100 p-5 font-extrabold">Payment history</div>{[["TXN-26081","12 Aug 2026","₹15,000","Recorded"],["TXN-25917","18 Jul 2026","₹25,000","Recorded"]].map(r=><div key={r[0]} className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between"><div><div className="font-bold">{r[0]}</div><div className="text-xs text-slate-500">{r[1]}</div></div><div className="font-black">{r[2]}</div><Badge tone="green">{r[3]}</Badge></div>)}</div></PortalShell>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="student"
+      title="Fees"
+      description="View fee details, payment records and outstanding balances."
+      rows={[
+        "Current fee structure",
+        "Payment history",
+        "Outstanding fee details",
+      ]}
+    />
+  );
+}

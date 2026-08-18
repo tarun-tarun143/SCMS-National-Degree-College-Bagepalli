@@ -1,3 +1,16 @@
-"use client"; import GenericPage from "@/components/portal/GenericPage"; import {studentItems} from "@/components/portal/portalItems"; import {firestoreDb} from "@/lib/firebase/client"; import {useLiveCollection} from "@/hooks/useLiveCollection";
-type Subject={id:string;code?:string;name?:string;facultyName?:string;facultyId?:string;credits?:number};
-export default function Subjects(){const {data}=useLiveCollection<Subject>(firestoreDb,"subjects",{limit:100}); return <GenericPage role="student" items={studentItems} title="Subjects" description="Current subjects are loaded live from the college academic database." rows={data.length?data.map(s=>`${s.code||"SUBJECT"} · ${s.name||"Untitled subject"} · ${s.facultyName||s.facultyId||"Faculty to be assigned"}`):["No subjects have been assigned to your course yet."]}/> }
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="student"
+      title="Subjects"
+      description="View your enrolled subjects and academic course information."
+      rows={[
+        "Current semester subjects",
+        "Subject faculty information",
+        "Course subject overview",
+      ]}
+    />
+  );
+}

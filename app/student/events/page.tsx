@@ -1,3 +1,16 @@
-"use client"; import GenericPage from "@/components/portal/GenericPage"; import {studentItems} from "@/components/portal/portalItems"; import {firestoreDb} from "@/lib/firebase/client"; import {useLiveCollection} from "@/hooks/useLiveCollection";
-type EventItem={id:string;title?:string;date?:string;venue?:string};
-export default function Events(){const {data}=useLiveCollection<EventItem>(firestoreDb,"events",{limit:100}); return <GenericPage role="student" items={studentItems} title="Events" description="Campus events and student activities from the live college calendar." rows={data.length?data.map(e=>`${e.title||"Event"} · ${e.date||"Date to be announced"} · ${e.venue||"Venue to be announced"}`):["No events are scheduled yet."]}/> }
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="student"
+      title="Events"
+      description="View upcoming college events, programs and student activities."
+      rows={[
+        "Upcoming college events",
+        "Registered events",
+        "Recent event activity",
+      ]}
+    />
+  );
+}

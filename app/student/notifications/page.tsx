@@ -1,2 +1,16 @@
-import GenericPage from "@/components/portal/GenericPage"; import {studentItems} from "@/components/portal/portalItems";
-export default function Notifications(){return <GenericPage role="student" items={studentItems} title="Notifications" description="Academic, examination, fee and campus alerts." rows={["Examination timetable published","Assignment deadline reminder","Fee balance reminder","New campus event"]}/>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="student"
+      title="Notifications"
+      description="View alerts, reminders and important SCMS notifications."
+      rows={[
+        "Unread notifications",
+        "Academic alerts",
+        "Recent system notifications",
+      ]}
+    />
+  );
+}

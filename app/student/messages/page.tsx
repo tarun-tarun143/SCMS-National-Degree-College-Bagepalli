@@ -1,2 +1,16 @@
-import GenericPage from "@/components/portal/GenericPage"; import {studentItems} from "@/components/portal/portalItems";
-export default function Messages(){return <GenericPage role="student" items={studentItems} title="Messages" description="Authorized communication with faculty and administration." rows={["Academic Advisor","Class Faculty","Administration"]}/>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="student"
+      title="Messages"
+      description="Communicate with faculty and college administration."
+      rows={[
+        "Faculty conversations",
+        "Administrative messages",
+        "Recent messages",
+      ]}
+    />
+  );
+}

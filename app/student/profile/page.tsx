@@ -1,5 +1,16 @@
-"use client";
-import PortalShell from "@/components/portal/PortalShell"; import {studentItems} from "@/components/portal/portalItems"; import PageHeading from "@/components/portal/PageHeading"; import {useScmsSession} from "@/lib/auth/session"; import {firestoreDb} from "@/lib/firebase/client"; import {useLiveCollection} from "@/hooks/useLiveCollection";
-type Student={id:string;studentId?:string;registerNumber?:string;name?:string;userId?:string;courseId?:string;departmentId?:string;semesterId?:string;sectionId?:string;academicYearId?:string;admissionYear?:number};
-export default function StudentProfile(){const {user}=useScmsSession("student"); const {data,loading,error}=useLiveCollection<Student>(firestoreDb,"students",{filters:user?.uid?[{field:"userId",op:"==",value:user.uid}]:undefined,limit:1}); const s=data[0]; return <PortalShell role="student" items={studentItems} title="My Profile"><PageHeading title="Student profile" description="Official academic fields are read from your live college record."/><div className="card p-6">{loading&&<p className="text-sm text-slate-500">Loading your profile…</p>}{error&&<p className="text-sm text-red-600">{error}</p>}{!loading&&!error&&!s&&<p className="text-sm text-slate-500">Your student record has not been linked to your Google account yet. Ask the college administrator to assign your student record.</p>}{s&&<div className="grid gap-5 md:grid-cols-2"><Field label="Student ID" value={s.studentId||"Not assigned"}/><Field label="Register Number" value={s.registerNumber||"Not assigned"}/><Field label="Full Name" value={s.name||user?.name||"Not available"}/><Field label="Email" value={user?.email||"Not available"}/><Field label="Course" value={s.courseId||"Not assigned"}/><Field label="Department" value={s.departmentId||"Not assigned"}/><Field label="Semester" value={s.semesterId||"Not assigned"}/><Field label="Section" value={s.sectionId||"Not assigned"}/><Field label="Academic Year" value={s.academicYearId||"Not assigned"}/><Field label="Admission Year" value={s.admissionYear?String(s.admissionYear):"Not assigned"}/></div>}</div></PortalShell>}
-function Field({label,value}:{label:string;value:string}){return <div className="rounded-xl bg-slate-50 p-4"><div className="text-xs font-bold uppercase tracking-wider text-slate-400">{label}</div><div className="mt-1 font-bold text-[var(--navy)]">{value}</div></div>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="student"
+      title="Profile"
+      description="View your student profile and academic information."
+      rows={[
+        "Personal information",
+        "Academic details",
+        "Contact information",
+      ]}
+    />
+  );
+}

@@ -1,2 +1,16 @@
-import GenericPage from "@/components/portal/GenericPage"; import {facultyItems} from "@/components/portal/portalItems";
-export default function Page(){return <GenericPage role="faculty" items={facultyItems} title="Notices" description="Department and college announcements." rows={["Academic notice", "Examination update"]}/>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="faculty"
+      title="Notices"
+      description="View college announcements and faculty-specific notices."
+      rows={[
+        "Published college notices",
+        "Faculty announcements",
+        "Recent notice activity",
+      ]}
+    />
+  );
+}

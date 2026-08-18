@@ -1,2 +1,16 @@
-import PortalShell from "@/components/portal/PortalShell"; import {studentItems} from "@/components/portal/portalItems"; import PageHeading from "@/components/portal/PageHeading";
-export default function Exams(){return <PortalShell role="student" items={studentItems} title="Examinations"><PageHeading title="Examination schedule" description="Your current exam timetable and venue information."/><div className="card overflow-hidden">{[["28 Aug 2026","Programming in Java","10:00 AM – 1:00 PM","Hall 2"],["02 Sep 2026","Database Management Systems","10:00 AM – 1:00 PM","Hall 1"],["06 Sep 2026","Computer Networks","10:00 AM – 1:00 PM","Hall 2"]].map(r=><div key={r[0]} className="grid gap-3 border-b border-slate-100 p-5 sm:grid-cols-[.8fr_1.5fr_1fr_.6fr] sm:items-center"><div className="font-black text-[var(--blue)]">{r[0]}</div><div className="font-bold">{r[1]}</div><div className="text-sm text-slate-600">{r[2]}</div><div className="text-sm font-semibold text-slate-600">{r[3]}</div></div>)}</div></PortalShell>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="student"
+      title="Exams"
+      description="View examination schedules, assessments and important exam information."
+      rows={[
+        "Upcoming examination schedule",
+        "Internal assessments",
+        "Recent examination notices",
+      ]}
+    />
+  );
+}

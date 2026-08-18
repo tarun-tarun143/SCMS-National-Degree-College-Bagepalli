@@ -1,2 +1,16 @@
-import GenericPage from "@/components/portal/GenericPage"; import {facultyItems} from "@/components/portal/portalItems";
-export default function Page(){return <GenericPage role="faculty" items={facultyItems} title="Assignments" description="Create assignments and review submissions." rows={["Java Collections & OOP", "Normalization Case Study"]}/>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="faculty"
+      title="Assignments"
+      description="Create, review and manage student assignments."
+      rows={[
+        "Assignment configuration",
+        "Recent assignment activity",
+        "Submission overview",
+      ]}
+    />
+  );
+}

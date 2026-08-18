@@ -1,2 +1,16 @@
-import GenericPage from "@/components/portal/GenericPage"; import {studentItems} from "@/components/portal/portalItems";
-export default function Leave(){return <GenericPage role="student" items={studentItems} title="Leave Requests" description="Submit and track student leave applications." rows={["No pending leave requests","Leave workflow is ready for form/database integration"]}/>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="student"
+      title="Leave"
+      description="Submit and monitor your leave requests."
+      rows={[
+        "New leave request",
+        "Pending leave requests",
+        "Leave history",
+      ]}
+    />
+  );
+}

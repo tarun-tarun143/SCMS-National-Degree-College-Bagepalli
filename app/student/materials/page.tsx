@@ -1,2 +1,16 @@
-import GenericPage from "@/components/portal/GenericPage"; import {studentItems} from "@/components/portal/portalItems";
-export default function Materials(){return <GenericPage role="student" items={studentItems} title="Study Materials" description="Notes, references, question papers and other course resources." rows={["Java Programming Notes","Database Management Systems Question Bank","Computer Networks Reference Guide","Semester Syllabus"]}/>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="student"
+      title="Materials"
+      description="Access study materials shared by your faculty members."
+      rows={[
+        "Course study materials",
+        "Recently uploaded materials",
+        "Downloaded materials",
+      ]}
+    />
+  );
+}

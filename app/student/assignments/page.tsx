@@ -1,2 +1,49 @@
-import PortalShell from "@/components/portal/PortalShell"; import {studentItems} from "@/components/portal/portalItems"; import PageHeading from "@/components/portal/PageHeading"; import Badge from "@/components/ui/Badge";
-export default function Assignments(){const rows=[["Java Collections & OOP","Programming in Java","24 Aug 2026","Pending"],["Normalization Case Study","Database Management Systems","27 Aug 2026","Submitted"],["Routing Fundamentals","Computer Networks","01 Sep 2026","Pending"]];return <PortalShell role="student" items={studentItems} title="Assignments"><PageHeading title="Assignments" description="View deadlines, submission status, grades and faculty feedback."/><div className="grid gap-4">{rows.map(r=><div className="card flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between" key={r[0]}><div><div className="text-lg font-extrabold text-[var(--navy)]">{r[0]}</div><div className="mt-1 text-sm text-slate-500">{r[1]} · Due {r[2]}</div></div><div className="flex items-center gap-3"><Badge tone={r[3]==="Submitted"?"green":"amber"}>{r[3]}</Badge><button className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold">Open</button></div></div>)}</div></PortalShell>}
+"use client";
+
+import PortalShell from "@/components/portal/PortalShell";
+import PageHeading from "@/components/portal/PageHeading";
+import Badge from "@/components/ui/Badge";
+
+export default function Page() {
+  const rows = [
+    "Current assignment list",
+    "Pending submissions",
+    "Recently completed assignments",
+  ];
+
+  return (
+    <PortalShell
+      role="student"
+      title="Assignments"
+    >
+      <PageHeading
+        eyebrow="Student portal"
+        title="Assignments"
+        description="View your academic assignments, deadlines and submission status."
+      />
+
+      <div className="mt-6 grid gap-4">
+        {rows.map((row, index) => (
+          <div
+            key={`${row}-${index}`}
+            className="card flex items-center justify-between p-5"
+          >
+            <div>
+              <div className="font-bold text-[var(--navy)]">
+                {row}
+              </div>
+
+              <div className="mt-1 text-xs text-slate-500">
+                SCMS student module
+              </div>
+            </div>
+
+            <Badge tone="blue">
+              View
+            </Badge>
+          </div>
+        ))}
+      </div>
+    </PortalShell>
+  );
+}

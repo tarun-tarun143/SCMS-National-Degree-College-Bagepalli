@@ -1,10 +1,291 @@
-import { BarChart3, BookOpen, CalendarDays, ClipboardCheck, CreditCard, FileText, GraduationCap, LayoutDashboard, Library, Megaphone, MessageSquare, NotebookTabs, Settings, ShieldCheck, Users, Bell, ClipboardList } from "lucide-react";
-export const studentItems=[
- {label:"Dashboard",href:"/student",icon:LayoutDashboard},{label:"Profile",href:"/student/profile",icon:Users},{label:"Attendance",href:"/student/attendance",icon:ClipboardCheck},{label:"Timetable",href:"/student/timetable",icon:CalendarDays},{label:"Subjects",href:"/student/subjects",icon:BookOpen},{label:"Assignments",href:"/student/assignments",icon:NotebookTabs},{label:"Exams",href:"/student/exams",icon:GraduationCap},{label:"Results",href:"/student/results",icon:BarChart3},{label:"Fees",href:"/student/fees",icon:CreditCard},{label:"Notices",href:"/student/notices",icon:Megaphone},{label:"Events",href:"/student/events",icon:CalendarDays},{label:"Materials",href:"/student/materials",icon:FileText},{label:"Leave",href:"/student/leave",icon:ClipboardList},{label:"Certificates",href:"/student/certificates",icon:FileText},{label:"Messages",href:"/student/messages",icon:MessageSquare},{label:"Notifications",href:"/student/notifications",icon:Bell},{label:"Settings",href:"/student/settings",icon:Settings}
+import {
+  BarChart3,
+  BookOpen,
+  CalendarDays,
+  ClipboardCheck,
+  CreditCard,
+  FileText,
+  GraduationCap,
+  LayoutDashboard,
+  Library,
+  Megaphone,
+  MessageSquare,
+  NotebookTabs,
+  Settings,
+  ShieldCheck,
+  Users,
+  Bell,
+  ClipboardList,
+} from "lucide-react";
+
+export const studentItems = [
+  {
+    label: "Dashboard",
+    href: "/student",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "Profile",
+    href: "/student/profile",
+    icon: Users,
+  },
+  {
+    label: "Attendance",
+    href: "/student/attendance",
+    icon: ClipboardCheck,
+  },
+  {
+    label: "Timetable",
+    href: "/student/timetable",
+    icon: CalendarDays,
+  },
+  {
+    label: "Subjects",
+    href: "/student/subjects",
+    icon: BookOpen,
+  },
+  {
+    label: "Assignments",
+    href: "/student/assignments",
+    icon: NotebookTabs,
+  },
+  {
+    label: "Exams",
+    href: "/student/exams",
+    icon: GraduationCap,
+  },
+  {
+    label: "Results",
+    href: "/student/results",
+    icon: BarChart3,
+  },
+  {
+    label: "Fees",
+    href: "/student/fees",
+    icon: CreditCard,
+  },
+  {
+    label: "Notices",
+    href: "/student/notices",
+    icon: Megaphone,
+  },
+  {
+    label: "Events",
+    href: "/student/events",
+    icon: CalendarDays,
+  },
+  {
+    label: "Materials",
+    href: "/student/materials",
+    icon: FileText,
+  },
+  {
+    label: "Leave",
+    href: "/student/leave",
+    icon: ClipboardList,
+  },
+  {
+    label: "Certificates",
+    href: "/student/certificates",
+    icon: FileText,
+  },
+  {
+    label: "Messages",
+    href: "/student/messages",
+    icon: MessageSquare,
+  },
+  {
+    label: "Notifications",
+    href: "/student/notifications",
+    icon: Bell,
+  },
+  {
+    label: "Settings",
+    href: "/student/settings",
+    icon: Settings,
+  },
 ];
-export const facultyItems=[
- {label:"Dashboard",href:"/faculty",icon:LayoutDashboard},{label:"Profile",href:"/faculty/profile",icon:Users},{label:"Classes",href:"/faculty/classes",icon:GraduationCap},{label:"Students",href:"/faculty/students",icon:Users},{label:"Attendance",href:"/faculty/attendance",icon:ClipboardCheck},{label:"Assignments",href:"/faculty/assignments",icon:NotebookTabs},{label:"Marks",href:"/faculty/marks",icon:BarChart3},{label:"Exams",href:"/faculty/exams",icon:GraduationCap},{label:"Materials",href:"/faculty/materials",icon:FileText},{label:"Timetable",href:"/faculty/timetable",icon:CalendarDays},{label:"Leave",href:"/faculty/leave",icon:ClipboardList},{label:"Notices",href:"/faculty/notices",icon:Megaphone},{label:"Messages",href:"/faculty/messages",icon:MessageSquare},{label:"Notifications",href:"/faculty/notifications",icon:Bell},{label:"Settings",href:"/faculty/settings",icon:Settings}
+
+export const facultyItems = [
+  {
+    label: "Dashboard",
+    href: "/faculty",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "Profile",
+    href: "/faculty/profile",
+    icon: Users,
+  },
+  {
+    label: "Classes",
+    href: "/faculty/classes",
+    icon: GraduationCap,
+  },
+  {
+    label: "Students",
+    href: "/faculty/students",
+    icon: Users,
+  },
+  {
+    label: "Attendance",
+    href: "/faculty/attendance",
+    icon: ClipboardCheck,
+  },
+  {
+    label: "Assignments",
+    href: "/faculty/assignments",
+    icon: NotebookTabs,
+  },
+  {
+    label: "Marks",
+    href: "/faculty/marks",
+    icon: BarChart3,
+  },
+  {
+    label: "Exams",
+    href: "/faculty/exams",
+    icon: GraduationCap,
+  },
+  {
+    label: "Materials",
+    href: "/faculty/materials",
+    icon: FileText,
+  },
+  {
+    label: "Timetable",
+    href: "/faculty/timetable",
+    icon: CalendarDays,
+  },
+  {
+    label: "Leave",
+    href: "/faculty/leave",
+    icon: ClipboardList,
+  },
+  {
+    label: "Notices",
+    href: "/faculty/notices",
+    icon: Megaphone,
+  },
+  {
+    label: "Messages",
+    href: "/faculty/messages",
+    icon: MessageSquare,
+  },
+  {
+    label: "Notifications",
+    href: "/faculty/notifications",
+    icon: Bell,
+  },
+  {
+    label: "Settings",
+    href: "/faculty/settings",
+    icon: Settings,
+  },
 ];
-export const adminItems=[
- {label:"Dashboard",href:"/admin",icon:LayoutDashboard},{label:"Users",href:"/admin/users",icon:Users},{label:"Students",href:"/admin/students",icon:Users},{label:"Faculty",href:"/admin/faculty",icon:GraduationCap},{label:"Courses",href:"/admin/courses",icon:BookOpen},{label:"Departments",href:"/admin/departments",icon:Library},{label:"Subjects",href:"/admin/subjects",icon:NotebookTabs},{label:"Attendance",href:"/admin/attendance",icon:ClipboardCheck},{label:"Timetable",href:"/admin/timetable",icon:CalendarDays},{label:"Exams",href:"/admin/exams",icon:GraduationCap},{label:"Results",href:"/admin/results",icon:BarChart3},{label:"Fees",href:"/admin/fees",icon:CreditCard},{label:"Notices",href:"/admin/notices",icon:Megaphone},{label:"Events",href:"/admin/events",icon:CalendarDays},{label:"Reports",href:"/admin/reports",icon:BarChart3},{label:"Messages",href:"/admin/messages",icon:MessageSquare},{label:"Notifications",href:"/admin/notifications",icon:Bell},{label:"Audit Logs",href:"/admin/audit-logs",icon:ShieldCheck},{label:"Settings",href:"/admin/settings",icon:Settings}
+
+export const adminItems = [
+  {
+    label: "Dashboard",
+    href: "/admin",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "Users",
+    href: "/admin/users",
+    icon: Users,
+  },
+  {
+    label: "Students",
+    href: "/admin/students",
+    icon: Users,
+  },
+  {
+    label: "Faculty",
+    href: "/admin/faculty",
+    icon: GraduationCap,
+  },
+  {
+    label: "Courses",
+    href: "/admin/courses",
+    icon: BookOpen,
+  },
+  {
+    label: "Departments",
+    href: "/admin/departments",
+    icon: Library,
+  },
+  {
+    label: "Subjects",
+    href: "/admin/subjects",
+    icon: NotebookTabs,
+  },
+  {
+    label: "Attendance",
+    href: "/admin/attendance",
+    icon: ClipboardCheck,
+  },
+  {
+    label: "Timetable",
+    href: "/admin/timetable",
+    icon: CalendarDays,
+  },
+  {
+    label: "Exams",
+    href: "/admin/exams",
+    icon: GraduationCap,
+  },
+  {
+    label: "Results",
+    href: "/admin/results",
+    icon: BarChart3,
+  },
+  {
+    label: "Fees",
+    href: "/admin/fees",
+    icon: CreditCard,
+  },
+  {
+    label: "Notices",
+    href: "/admin/notices",
+    icon: Megaphone,
+  },
+  {
+    label: "Events",
+    href: "/admin/events",
+    icon: CalendarDays,
+  },
+
+  // NEW: REAL-TIME QUERIES
+  {
+    label: "Queries",
+    href: "/admin/queries",
+    icon: MessageSquare,
+  },
+
+  {
+    label: "Reports",
+    href: "/admin/reports",
+    icon: BarChart3,
+  },
+  {
+    label: "Messages",
+    href: "/admin/messages",
+    icon: MessageSquare,
+  },
+  {
+    label: "Notifications",
+    href: "/admin/notifications",
+    icon: Bell,
+  },
+  {
+    label: "Audit Logs",
+    href: "/admin/audit-logs",
+    icon: ShieldCheck,
+  },
+  {
+    label: "Settings",
+    href: "/admin/settings",
+    icon: Settings,
+  },
 ];

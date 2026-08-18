@@ -1,2 +1,16 @@
-import GenericPage from "@/components/portal/GenericPage"; import {facultyItems} from "@/components/portal/portalItems";
-export default function Page(){return <GenericPage role="faculty" items={facultyItems} title="Examinations" description="View exam schedules and responsibilities." rows={["Internal Assessment", "Semester Examination"]}/>}
+import GenericPage from "@/components/portal/GenericPage";
+
+export default function Page() {
+  return (
+    <GenericPage
+      role="faculty"
+      title="Exams"
+      description="Manage examination schedules, assessments and related academic activities."
+      rows={[
+        "Upcoming examination schedule",
+        "Assessment configuration",
+        "Recent examination activity",
+      ]}
+    />
+  );
+}

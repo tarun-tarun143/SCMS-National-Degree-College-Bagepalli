@@ -1,5 +1,363 @@
 "use client";
-import { Bell, BookOpen, CalendarDays, ClipboardCheck, CreditCard, GraduationCap } from "lucide-react"; import PortalShell from "@/components/portal/PortalShell"; import { studentItems } from "@/components/portal/portalItems"; import PageHeading from "@/components/portal/PageHeading"; import StatCard from "@/components/ui/StatCard"; import Progress from "@/components/ui/Progress"; import Badge from "@/components/ui/Badge"; import { firestoreDb } from "@/lib/firebase/client"; import { useLiveCollection } from "@/hooks/useLiveCollection";  import { useScmsSession } from "@/lib/auth/session";
-type Student={id:string;userId?:string;name?:string;studentId?:string;courseId?:string;semesterId?:string;sectionId?:string;cgpa?:number}; type Notice={id:string;title?:string;category?:string;publishedAt?:string}; type Subject={id:string;name?:string;attendance?:number}; type Fee={id:string;balance?:number;amountDue?:number};
-export default function Student(){const {user}=useScmsSession("student"); const {data:student}=useLiveCollection<Student>(firestoreDb,"students",{filters:user?.uid?[{field:"userId",op:"==",value:user.uid}]:undefined,limit:1}); const profile=student[0]; const notices=useLiveCollection<Notice>(firestoreDb,"notices",{filters:[{field:"status",op:"==",value:"published"}],limit:4}); const subjects=useLiveCollection<Subject>(firestoreDb,"subjects",{filters:profile?.courseId?[{field:"courseId",op:"==",value:profile.courseId}]:undefined,limit:20}); const fees=useLiveCollection<Fee>(firestoreDb,"fees",{filters:user?.uid?[{field:"userId",op:"==",value:user.uid}]:undefined,limit:20}); return <PortalShell role="student" items={studentItems} title="Student Dashboard"><PageHeading eyebrow={`Welcome, ${user?.name||"Student"}`} title="Your academic overview" description="Live academic information from your college account."/><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"><StatCard label="Attendance" value="—" icon={ClipboardCheck} trend="Updated from attendance records"/><StatCard label="Current CGPA" value={profile?.cgpa!=null?profile.cgpa.toFixed(2):"—"} icon={GraduationCap} trend="Official academic record"/><StatCard label="Subjects" value={String(subjects.data.length)} icon={BookOpen} trend="Live subject allocation"/><StatCard label="Fee Balance" value={fees.data.length?`₹${fees.data.reduce((sum,f)=>sum+Number(f.balance??f.amountDue??0),0).toLocaleString("en-IN")}` : "—"} icon={CreditCard} trend="Live fee records"/></div><div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_.8fr]"><div className="card p-6"><div className="flex items-center justify-between"><div><h3 className="font-extrabold text-[var(--navy)]">Subjects</h3><p className="mt-1 text-xs text-slate-500">Live records assigned to your course.</p></div><Badge tone="blue">{subjects.data.length} subjects</Badge></div><div className="mt-6 grid gap-5">{subjects.loading&&<div className="text-sm text-slate-500">Loading subjects…</div>}{!subjects.loading&&!subjects.data.length&&<div className="rounded-xl bg-slate-50 p-5 text-sm text-slate-500">No subjects have been assigned to your account yet.</div>}{subjects.data.map(s=><Progress key={s.id} value={Number(s.attendance??0)} label={s.name||"Subject"}/>)}</div></div><div className="card p-6"><div className="flex items-center justify-between"><h3 className="font-extrabold text-[var(--navy)]">Account</h3><CalendarDays className="h-5 w-5 text-[var(--blue)]"/></div><div className="mt-5 grid gap-3"><AccountRow label="Student ID" value={profile?.studentId||"Not assigned"}/><AccountRow label="Course" value={profile?.courseId||"Not assigned"}/><AccountRow label="Semester" value={profile?.semesterId||"Not assigned"}/><AccountRow label="Section" value={profile?.sectionId||"Not assigned"}/></div></div></div><div className="mt-6 grid gap-6 lg:grid-cols-2"><div className="card p-6"><div className="flex items-center justify-between"><h3 className="font-extrabold text-[var(--navy)]">Recent notices</h3><Bell className="h-5 w-5 text-[var(--blue)]"/></div><div className="mt-4 divide-y divide-slate-100">{notices.loading&&<div className="py-4 text-sm text-slate-500">Loading notices…</div>}{!notices.loading&&!notices.data.length&&<div className="py-4 text-sm text-slate-500">No published notices.</div>}{notices.data.map(n=><div key={n.id} className="py-4"><div className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">{n.category||"General"}</div><div className="mt-1 text-sm font-bold text-slate-800">{n.title||"Notice"}</div><div className="mt-1 text-xs text-slate-500">{n.publishedAt||"Recently"}</div></div>)}</div></div><div className="card p-6"><h3 className="font-extrabold text-[var(--navy)]">Live account status</h3><div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-6 text-emerald-800">Your login identity and portal role are verified from Firebase Authentication and your Firestore user profile on every portal load.</div></div></div></PortalShell>}
-function AccountRow({label,value}:{label:string;value:string}){return <div className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3"><span className="text-xs font-bold uppercase tracking-wider text-slate-400">{label}</span><span className="text-sm font-extrabold text-[var(--navy)]">{value}</span></div>}
+
+import {
+  Bell,
+  BookOpen,
+  CalendarDays,
+  ClipboardCheck,
+  CreditCard,
+  GraduationCap,
+} from "lucide-react";
+
+import PortalShell from "@/components/portal/PortalShell";
+import PageHeading from "@/components/portal/PageHeading";
+import StatCard from "@/components/ui/StatCard";
+import Progress from "@/components/ui/Progress";
+import Badge from "@/components/ui/Badge";
+
+import { firestoreDb } from "@/lib/firebase/client";
+import { useLiveCollection } from "@/hooks/useLiveCollection";
+import { useScmsSession } from "@/lib/auth/session";
+
+type Student = {
+  id: string;
+  userId?: string;
+  name?: string;
+  studentId?: string;
+  courseId?: string;
+  semesterId?: string;
+  sectionId?: string;
+  cgpa?: number;
+};
+
+type Notice = {
+  id: string;
+  title?: string;
+  category?: string;
+  publishedAt?: string;
+};
+
+type Subject = {
+  id: string;
+  name?: string;
+  attendance?: number;
+};
+
+type Fee = {
+  id: string;
+  balance?: number;
+  amountDue?: number;
+};
+
+export default function Student() {
+  const { user } = useScmsSession("student");
+
+  const { data: student } =
+    useLiveCollection<Student>(
+      firestoreDb,
+      "students",
+      {
+        filters: user?.uid
+          ? [
+              {
+                field: "userId",
+                op: "==",
+                value: user.uid,
+              },
+            ]
+          : undefined,
+        limit: 1,
+      }
+    );
+
+  const profile = student[0];
+
+  const notices =
+    useLiveCollection<Notice>(
+      firestoreDb,
+      "notices",
+      {
+        filters: [
+          {
+            field: "status",
+            op: "==",
+            value: "published",
+          },
+        ],
+        limit: 4,
+      }
+    );
+
+  const subjects =
+    useLiveCollection<Subject>(
+      firestoreDb,
+      "subjects",
+      {
+        filters: profile?.courseId
+          ? [
+              {
+                field: "courseId",
+                op: "==",
+                value: profile.courseId,
+              },
+            ]
+          : undefined,
+        limit: 20,
+      }
+    );
+
+  const fees =
+    useLiveCollection<Fee>(
+      firestoreDb,
+      "fees",
+      {
+        filters: user?.uid
+          ? [
+              {
+                field: "userId",
+                op: "==",
+                value: user.uid,
+              },
+            ]
+          : undefined,
+        limit: 20,
+      }
+    );
+
+  const feeBalance = fees.data.reduce(
+    (sum, fee) =>
+      sum +
+      Number(
+        fee.balance ??
+          fee.amountDue ??
+          0
+      ),
+    0
+  );
+
+  return (
+    <PortalShell
+      role="student"
+      title="Student Dashboard"
+    >
+      <PageHeading
+        eyebrow={`Welcome, ${user?.name || "Student"}`}
+        title="Your academic overview"
+        description="Live academic information from your college account."
+      />
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Attendance"
+          value="—"
+          icon={ClipboardCheck}
+          trend="Updated from attendance records"
+        />
+
+        <StatCard
+          label="Current CGPA"
+          value={
+            profile?.cgpa != null
+              ? profile.cgpa.toFixed(2)
+              : "—"
+          }
+          icon={GraduationCap}
+          trend="Official academic record"
+        />
+
+        <StatCard
+          label="Subjects"
+          value={String(subjects.data.length)}
+          icon={BookOpen}
+          trend="Live subject allocation"
+        />
+
+        <StatCard
+          label="Fee Balance"
+          value={
+            fees.data.length
+              ? `₹${feeBalance.toLocaleString(
+                  "en-IN"
+                )}`
+              : "—"
+          }
+          icon={CreditCard}
+          trend="Live fee records"
+        />
+      </div>
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
+        <div className="card p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-extrabold text-[var(--navy)]">
+                Subjects
+              </h3>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Live records assigned to your course.
+              </p>
+            </div>
+
+            <Badge tone="blue">
+              {subjects.data.length} subjects
+            </Badge>
+          </div>
+
+          <div className="mt-6 grid gap-5">
+            {subjects.loading && (
+              <div className="text-sm text-slate-500">
+                Loading subjects…
+              </div>
+            )}
+
+            {!subjects.loading &&
+              !subjects.data.length && (
+                <div className="rounded-xl bg-slate-50 p-5 text-sm text-slate-500">
+                  No subjects have been assigned
+                  to your account yet.
+                </div>
+              )}
+
+            {subjects.data.map((subject) => (
+              <Progress
+                key={subject.id}
+                value={Number(
+                  subject.attendance ?? 0
+                )}
+                label={
+                  subject.name || "Subject"
+                }
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="card p-6">
+          <div className="flex items-center justify-between">
+            <h3 className="font-extrabold text-[var(--navy)]">
+              Account
+            </h3>
+
+            <CalendarDays className="h-5 w-5 text-[var(--blue)]" />
+          </div>
+
+          <div className="mt-5 grid gap-3">
+            <AccountRow
+              label="Student ID"
+              value={
+                profile?.studentId ||
+                "Not assigned"
+              }
+            />
+
+            <AccountRow
+              label="Course"
+              value={
+                profile?.courseId ||
+                "Not assigned"
+              }
+            />
+
+            <AccountRow
+              label="Semester"
+              value={
+                profile?.semesterId ||
+                "Not assigned"
+              }
+            />
+
+            <AccountRow
+              label="Section"
+              value={
+                profile?.sectionId ||
+                "Not assigned"
+              }
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <div className="card p-6">
+          <div className="flex items-center justify-between">
+            <h3 className="font-extrabold text-[var(--navy)]">
+              Recent notices
+            </h3>
+
+            <Bell className="h-5 w-5 text-[var(--blue)]" />
+          </div>
+
+          <div className="mt-4 divide-y divide-slate-100">
+            {notices.loading && (
+              <div className="py-4 text-sm text-slate-500">
+                Loading notices…
+              </div>
+            )}
+
+            {!notices.loading &&
+              !notices.data.length && (
+                <div className="py-4 text-sm text-slate-500">
+                  No published notices.
+                </div>
+              )}
+
+            {notices.data.map((notice) => (
+              <div
+                key={notice.id}
+                className="py-4"
+              >
+                <div className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">
+                  {notice.category ||
+                    "General"}
+                </div>
+
+                <div className="mt-1 text-sm font-bold text-slate-800">
+                  {notice.title || "Notice"}
+                </div>
+
+                <div className="mt-1 text-xs text-slate-500">
+                  {notice.publishedAt ||
+                    "Recently"}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="card p-6">
+          <h3 className="font-extrabold text-[var(--navy)]">
+            Live account status
+          </h3>
+
+          <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-6 text-emerald-800">
+            Your login identity and portal role are
+            verified from Firebase Authentication and
+            your Firestore user profile on every portal
+            load.
+          </div>
+        </div>
+      </div>
+    </PortalShell>
+  );
+}
+
+function AccountRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
+      <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+        {label}
+      </span>
+
+      <span className="text-sm font-extrabold text-[var(--navy)]">
+        {value}
+      </span>
+    </div>
+  );
+}
