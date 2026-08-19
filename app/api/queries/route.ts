@@ -15,11 +15,7 @@ interface QueryRequest {
 }
 
 function cleanText(value: unknown): string {
-  if (typeof value !== "string") {
-    return "";
-  }
-
-  return value.trim();
+  return typeof value === "string" ? value.trim() : "";
 }
 
 function escapeHtml(value: string): string {
@@ -35,18 +31,29 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Unknown error";
+}
+
 export async function POST(request: NextRequest) {
   try {
+    // --------------------------------------------------
+    // FIREBASE ADMIN
+    // --------------------------------------------------
+
     const adminDb = getAdminDb();
 
-    const body = (await request.json()) as QueryRequest;
+    // --------------------------------------------------
+    // READ REQUEST
+    // --------------------------------------------------
 
-    // rest of your existing code...
+    const body = (await request.json()) as QueryRequest;
 
     const name = cleanText(body.name);
     const email = cleanText(body.email).toLowerCase();
     const phone = cleanText(body.phone);
-    const category = cleanText(body.category) || "General";
+    const category =
+      cleanText(body.category) || "General";
     const subject = cleanText(body.subject);
     const message = cleanText(body.message);
 
@@ -68,7 +75,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Name must contain at least 2 characters.",
+          message:
+            "Name must contain at least 2 characters.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (name.length > 100) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Name is too long.",
         },
         { status: 400 }
       );
@@ -78,7 +96,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Please enter a valid email address.",
+          message:
+            "Please enter a valid email address.",
         },
         { status: 400 }
       );
@@ -89,6 +108,16 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           message: "Please enter a subject.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (subject.length > 200) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Subject is too long.",
         },
         { status: 400 }
       );
@@ -108,27 +137,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Query must contain at least 10 characters.",
-        },
-        { status: 400 }
-      );
-    }
-
-    if (name.length > 100) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Name is too long.",
-        },
-        { status: 400 }
-      );
-    }
-
-    if (subject.length > 200) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Subject is too long.",
+          message:
+            "Query must contain at least 10 characters.",
         },
         { status: 400 }
       );
@@ -138,54 +148,70 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Query is too long. Maximum 5000 characters.",
+          message:
+            "Query is too long. Maximum 5000 characters.",
         },
         { status: 400 }
       );
     }
 
     // --------------------------------------------------
-    // ENVIRONMENT VARIABLES
+    // EMAIL ENVIRONMENT
     // --------------------------------------------------
 
-    const emailUser = process.env.SCMS_EMAIL_USER;
-    const emailAppPassword = process.env.SCMS_EMAIL_APP_PASSWORD;
-    const recipientsString = process.env.SCMS_QUERY_RECIPIENTS;
+    const emailUser =
+      process.env.SCMS_EMAIL_USER;
+
+    const emailAppPassword =
+      process.env.SCMS_EMAIL_APP_PASSWORD;
+
+    const recipientsString =
+      process.env.SCMS_QUERY_RECIPIENTS;
+
     const fromName =
       process.env.SCMS_EMAIL_FROM_NAME ||
       "SCMS - The National Degree College, Bagepalli";
 
     if (!emailUser) {
-      console.error("Missing SCMS_EMAIL_USER");
+      console.error(
+        "Missing SCMS_EMAIL_USER"
+      );
 
       return NextResponse.json(
         {
           success: false,
-          message: "Email service is not configured.",
+          message:
+            "Email service is not configured.",
         },
         { status: 500 }
       );
     }
 
     if (!emailAppPassword) {
-      console.error("Missing SCMS_EMAIL_APP_PASSWORD");
+      console.error(
+        "Missing SCMS_EMAIL_APP_PASSWORD"
+      );
 
       return NextResponse.json(
         {
           success: false,
-          message: "Email service is not configured.",
+          message:
+            "Email service is not configured.",
         },
         { status: 500 }
       );
     }
 
     if (!recipientsString) {
-      console.error("Missing SCMS_QUERY_RECIPIENTS");
+      console.error(
+        "Missing SCMS_QUERY_RECIPIENTS"
+      );
 
       return NextResponse.json(
         {
           success: false,
-          message: "Query recipients are not configured.",
+          message:
+            "Query recipients are not configured.",
         },
         { status: 500 }
       );
@@ -193,14 +219,15 @@ export async function POST(request: NextRequest) {
 
     const recipients = recipientsString
       .split(",")
-      .map((emailAddress) => emailAddress.trim())
+      .map((value) => value.trim())
       .filter(Boolean);
 
-    if (recipients.length === 0) {
+    if (!recipients.length) {
       return NextResponse.json(
         {
           success: false,
-          message: "No admin or faculty email addresses configured.",
+          message:
+            "No admin or faculty email addresses configured.",
         },
         { status: 500 }
       );
@@ -210,7 +237,9 @@ export async function POST(request: NextRequest) {
     // SAVE QUERY TO FIRESTORE
     // --------------------------------------------------
 
-    const queryRef = adminDb.collection("queries").doc();
+    const queryRef = adminDb
+      .collection("queries")
+      .doc();
 
     const queryId = queryRef.id;
 
@@ -228,23 +257,30 @@ export async function POST(request: NextRequest) {
       status: "new",
 
       emailSent: false,
+      emailError: null,
+      emailRecipients: [],
 
-      createdAt: FieldValue.serverTimestamp(),
-      updatedAt: FieldValue.serverTimestamp(),
+      source: "public-contact-form",
+
+      createdAt:
+        FieldValue.serverTimestamp(),
+
+      updatedAt:
+        FieldValue.serverTimestamp(),
     });
 
     // --------------------------------------------------
-    // CREATE GMAIL TRANSPORTER
+    // GMAIL TRANSPORT
     // --------------------------------------------------
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-
-      auth: {
-        user: emailUser,
-        pass: emailAppPassword,
-      },
-    });
+    const transporter =
+      nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: emailUser,
+          pass: emailAppPassword,
+        },
+      });
 
     // --------------------------------------------------
     // EMAIL HTML
@@ -252,10 +288,10 @@ export async function POST(request: NextRequest) {
 
     const htmlMessage = `
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     body {
@@ -266,140 +302,172 @@ export async function POST(request: NextRequest) {
       color: #1f2937;
     }
 
-    .container {
-      width: 100%;
-      padding: 30px 10px;
+    .wrapper {
+      padding: 32px 12px;
     }
 
     .card {
-      max-width: 700px;
+      width: 100%;
+      max-width: 720px;
       margin: 0 auto;
       background: #ffffff;
-      border-radius: 16px;
+      border-radius: 18px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      box-shadow: 0 12px 40px rgba(15, 61, 145, 0.10);
     }
 
     .header {
-      background: linear-gradient(135deg, #0f3d91, #1769d1);
-      color: white;
-      padding: 28px;
+      background: linear-gradient(
+        135deg,
+        #0f3d91,
+        #1769d1
+      );
+      color: #ffffff;
+      padding: 30px;
     }
 
     .header h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 25px;
+      line-height: 1.3;
     }
 
     .header p {
       margin: 8px 0 0;
+      font-size: 14px;
       opacity: 0.9;
     }
 
     .content {
-      padding: 28px;
+      padding: 30px;
     }
 
     .alert {
-      background: #eef6ff;
-      border-left: 5px solid #1769d1;
-      padding: 15px;
       margin-bottom: 22px;
-      border-radius: 8px;
+      padding: 15px 16px;
+      border-left: 4px solid #1769d1;
+      border-radius: 10px;
+      background: #eef6ff;
+      color: #334155;
     }
 
     .row {
-      padding: 12px 0;
+      padding: 14px 0;
       border-bottom: 1px solid #e5e7eb;
     }
 
     .label {
-      font-weight: bold;
-      color: #374151;
       display: block;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
     }
 
     .value {
       color: #111827;
-    }
-
-    .message {
-      margin-top: 22px;
-      padding: 18px;
-      background: #f8fafc;
-      border-radius: 10px;
-      white-space: pre-wrap;
+      font-size: 15px;
       line-height: 1.6;
     }
 
-    .footer {
+    .query-message {
+      margin-top: 24px;
+      padding: 20px;
+      border-radius: 12px;
       background: #f8fafc;
-      padding: 20px 28px;
-      color: #6b7280;
-      font-size: 13px;
-      text-align: center;
+      color: #334155;
+      white-space: pre-wrap;
+      line-height: 1.7;
     }
 
     .query-id {
+      display: inline-block;
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: #f1f5f9;
       font-family: monospace;
-      background: #f3f4f6;
-      padding: 4px 7px;
-      border-radius: 5px;
+      font-size: 13px;
+    }
+
+    .footer {
+      padding: 22px 30px;
+      background: #f8fafc;
+      text-align: center;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.6;
     }
   </style>
 </head>
 
 <body>
-
-  <div class="container">
-
+  <div class="wrapper">
     <div class="card">
 
       <div class="header">
         <h1>New College Query</h1>
-        <p>The National Degree College, Bagepalli</p>
+        <p>
+          The National Degree College, Bagepalli
+        </p>
       </div>
 
       <div class="content">
 
         <div class="alert">
-          A new query has been submitted through the
-          Smart College Management System.
+          A new query has been submitted through
+          the Smart College Management System.
         </div>
 
         <div class="row">
           <span class="label">Query ID</span>
-          <span class="value query-id">${escapeHtml(queryId)}</span>
+          <span class="value">
+            <span class="query-id">
+              ${escapeHtml(queryId)}
+            </span>
+          </span>
         </div>
 
         <div class="row">
           <span class="label">Name</span>
-          <span class="value">${escapeHtml(name)}</span>
+          <span class="value">
+            ${escapeHtml(name)}
+          </span>
         </div>
 
         <div class="row">
           <span class="label">Email</span>
-          <span class="value">${escapeHtml(email)}</span>
+          <span class="value">
+            ${escapeHtml(email)}
+          </span>
         </div>
 
         <div class="row">
           <span class="label">Phone</span>
-          <span class="value">${escapeHtml(phone || "Not provided")}</span>
+          <span class="value">
+            ${escapeHtml(
+              phone || "Not provided"
+            )}
+          </span>
         </div>
 
         <div class="row">
           <span class="label">Category</span>
-          <span class="value">${escapeHtml(category)}</span>
+          <span class="value">
+            ${escapeHtml(category)}
+          </span>
         </div>
 
         <div class="row">
           <span class="label">Subject</span>
-          <span class="value">${escapeHtml(subject)}</span>
+          <span class="value">
+            ${escapeHtml(subject)}
+          </span>
         </div>
 
-        <div class="message">
-          <strong>Query:</strong>
+        <div class="query-message">
+          <strong>Query</strong>
 
           ${escapeHtml(message)}
         </div>
@@ -409,12 +477,12 @@ export async function POST(request: NextRequest) {
       <div class="footer">
         This notification was generated automatically by
         SCMS - The National Degree College, Bagepalli.
+        <br />
+        Query ID: ${escapeHtml(queryId)}
       </div>
 
     </div>
-
   </div>
-
 </body>
 </html>
 `;
@@ -426,12 +494,11 @@ export async function POST(request: NextRequest) {
     try {
       await transporter.sendMail({
         from: `"${fromName}" <${emailUser}>`,
-
         to: recipients,
-
         replyTo: email,
 
-        subject: `New SCMS Query: ${subject}`,
+        subject:
+          `New SCMS Query: ${subject}`,
 
         text: `
 New College Query
@@ -448,7 +515,7 @@ Subject: ${subject}
 
 Query:
 ${message}
-        `,
+        `.trim(),
 
         html: htmlMessage,
       });
@@ -459,51 +526,78 @@ ${message}
 
       await queryRef.update({
         emailSent: true,
-        emailSentAt: FieldValue.serverTimestamp(),
+
+        emailSentAt:
+          FieldValue.serverTimestamp(),
+
         emailRecipients: recipients,
-        updatedAt: FieldValue.serverTimestamp(),
+
+        emailError: null,
+
+        updatedAt:
+          FieldValue.serverTimestamp(),
       });
 
       return NextResponse.json(
         {
           success: true,
+
           message:
             "Your query has been submitted successfully. Admin/Faculty have been notified.",
+
           queryId,
+
+          emailSent: true,
         },
         { status: 201 }
       );
-    } catch (emailError) {
-      console.error("SCMS EMAIL ERROR:", emailError);
 
-      // Keep the query in Firestore even if email fails
+    } catch (emailError) {
+      console.error(
+        "SCMS EMAIL ERROR:",
+        emailError
+      );
+
+      // Keep the query because Firestore
+      // save succeeded even if email failed.
+
       await queryRef.update({
         emailSent: false,
+
         emailError:
-          emailError instanceof Error
-            ? emailError.message
-            : "Unknown email error",
-        updatedAt: FieldValue.serverTimestamp(),
+          errorMessage(emailError),
+
+        updatedAt:
+          FieldValue.serverTimestamp(),
       });
 
       return NextResponse.json(
         {
           success: true,
+
           emailSent: false,
+
           message:
             "Your query was saved successfully, but email notification could not be sent.",
+
           queryId,
         },
         { status: 201 }
       );
     }
+
   } catch (error) {
-    console.error("SCMS QUERY API ERROR:", error);
+    console.error(
+      "SCMS QUERY API ERROR:",
+      error
+    );
 
     return NextResponse.json(
       {
         success: false,
-        message: "Unable to submit your query. Please try again.",
+
+        message:
+          "Unable to submit your query. Please try again.",
       },
       { status: 500 }
     );

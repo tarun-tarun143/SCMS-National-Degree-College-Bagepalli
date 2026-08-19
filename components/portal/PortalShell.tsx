@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -48,9 +49,9 @@ export default function PortalShell({
   } = useScmsSession(role);
 
   /*
-   * Select navigation internally.
-   * This prevents Lucide icon components from being
-   * passed from Server Components to this Client Component.
+   * Select navigation internally based on role.
+   * This keeps Lucide icon components inside the
+   * Client Component boundary.
    */
   const items =
     role === "student"
@@ -83,7 +84,7 @@ export default function PortalShell({
   }
 
   /*
-   * Loading
+   * Loading state
    */
   if (loading) {
     return (
@@ -100,7 +101,7 @@ export default function PortalShell({
   }
 
   /*
-   * Unauthorized
+   * Unauthorized state
    */
   if (!user) {
     return (
@@ -158,19 +159,27 @@ export default function PortalShell({
             }
           `}
         >
-          {/* Header */}
+          {/* Sidebar header */}
           <div className="flex h-20 items-center justify-between border-b border-slate-100 px-5">
             <Link
               href={`/${role}`}
-              className="flex items-center gap-3"
+              className="flex min-w-0 items-center gap-3"
               onClick={() => setOpen(false)}
             >
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-[var(--navy)] text-sm font-black text-[var(--gold)]">
-                NDC
-              </div>
+              {/* College Logo */}
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white">
+  <img
+    src="/college-logo.jpg"
+    alt="The National Degree College, Bagepalli"
+    width="48"
+    height="48"
+    className="block h-12 w-12 object-contain"
+  />
+</div>
 
-              <div>
-                <div className="text-xs font-extrabold text-[var(--navy)]">
+              {/* College Name */}
+              <div className="min-w-0">
+                <div className="truncate text-xs font-extrabold text-[var(--navy)]">
                   NATIONAL DEGREE COLLEGE
                 </div>
 
@@ -192,7 +201,7 @@ export default function PortalShell({
 
           <div className="p-4">
 
-            {/* User */}
+            {/* User information */}
             <div className="rounded-2xl bg-slate-50 p-4">
               <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
                 Signed in as
@@ -236,8 +245,11 @@ export default function PortalShell({
                       }
                     `}
                   >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.label}</span>
+                    <Icon className="h-4 w-4 shrink-0" />
+
+                    <span className="truncate">
+                      {item.label}
+                    </span>
                   </Link>
                 );
               })}
@@ -249,13 +261,16 @@ export default function PortalShell({
               onClick={handleLogout}
               className="mt-5 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
             >
-              <LogOut className="h-4 w-4" />
-              <span>Logout</span>
+              <LogOut className="h-4 w-4 shrink-0" />
+
+              <span>
+                Logout
+              </span>
             </button>
           </div>
         </aside>
 
-        {/* Main */}
+        {/* Main content */}
         <div className="min-w-0 flex-1">
 
           {/* Top header */}
