@@ -192,22 +192,17 @@ service cloud.firestore {
 
 
     // ==================================================
-    // FACULTY
-    // ==================================================
+// FACULTY
+// ==================================================
 
-    match /faculty/{facultyId} {
+match /faculty/{facultyId} {
 
-      // Admin can read all faculty.
-      // Faculty can read their own record.
-      allow read: if isAdmin()
-        || (
-          isFaculty()
-          && resource.data.userId == request.auth.uid
-        );
+  // Public faculty directory.
+  allow read: if true;
 
-      // Admin manages faculty.
-      allow create, update, delete: if isAdmin();
-    }
+  // Only Admin can manage faculty records.
+  allow create, update, delete: if isAdmin();
+}
 
 
     // ==================================================

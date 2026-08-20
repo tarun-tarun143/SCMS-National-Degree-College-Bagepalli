@@ -4,9 +4,11 @@ import {
   Bell,
   BookOpen,
   CalendarDays,
+  CheckCircle2,
   ClipboardCheck,
   CreditCard,
   GraduationCap,
+  Loader2,
 } from "lucide-react";
 
 import PortalShell from "@/components/portal/PortalShell";
@@ -35,96 +37,125 @@ type Notice = {
   title?: string;
   category?: string;
   publishedAt?: string;
+  status?: string;
 };
 
 type Subject = {
   id: string;
   name?: string;
   attendance?: number;
+  courseId?: string;
 };
 
 type Fee = {
   id: string;
+  userId?: string;
   balance?: number;
   amountDue?: number;
 };
 
 export default function Student() {
-  const { user } = useScmsSession("student");
+  const { user, loading: sessionLoading, error: sessionError } =
+    useScmsSession("student");
 
-  const { data: student } =
-    useLiveCollection<Student>(
-      firestoreDb,
-      "students",
-      {
-        filters: user?.uid
-          ? [
-              {
-                field: "userId",
-                op: "==",
-                value: user.uid,
-              },
-            ]
-          : undefined,
-        limit: 1,
-      }
-    );
+  /*
+   * IMPORTANT:
+   * Do not start protected collection listeners until the
+   * authenticated SCMS user is available.
+   */
+
+  const {
+    data: student,
+    loading: studentLoading,
+    error: studentError,
+  } = useLiveCollection<Student>(
+    user?.uid ? firestoreDb : null,
+    "students",
+    {
+      filters: user?.uid
+        ? [
+            {
+              field: "userId",
+              op: "==",
+              value: user.uid,
+            },
+          ]
+        : undefined,
+      limit: 1,
+    }
+  );
 
   const profile = student[0];
 
-  const notices =
-    useLiveCollection<Notice>(
-      firestoreDb,
-      "notices",
-      {
-        filters: [
-          {
-            field: "status",
-            op: "==",
-            value: "published",
-          },
-        ],
-        limit: 4,
-      }
-    );
+  /*
+   * Notices are public/published data, so this listener can run
+   * independently of the authenticated user.
+   */
+  const notices = useLiveCollection<Notice>(
+    firestoreDb,
+    "notices",
+    {
+      filters: [
+        {
+          field: "status",
+          op: "==",
+          value: "published",
+        },
+      ],
+      limit: 4,
+    }
+  );
 
-  const subjects =
-    useLiveCollection<Subject>(
-      firestoreDb,
-      "subjects",
-      {
-        filters: profile?.courseId
-          ? [
-              {
-                field: "courseId",
-                op: "==",
-                value: profile.courseId,
-              },
-            ]
-          : undefined,
-        limit: 20,
-      }
-    );
+  /*
+   * Subjects should only be queried after the Student record
+   * tells us which course they belong to.
+   */
+  const {
+    data: subjectsData,
+    loading: subjectsLoading,
+    error: subjectsError,
+  } = useLiveCollection<Subject>(
+    profile?.courseId ? firestoreDb : null,
+    "subjects",
+    {
+      filters: profile?.courseId
+        ? [
+            {
+              field: "courseId",
+              op: "==",
+              value: profile.courseId,
+            },
+          ]
+        : undefined,
+      limit: 20,
+    }
+  );
 
-  const fees =
-    useLiveCollection<Fee>(
-      firestoreDb,
-      "fees",
-      {
-        filters: user?.uid
-          ? [
-              {
-                field: "userId",
-                op: "==",
-                value: user.uid,
-              },
-            ]
-          : undefined,
-        limit: 20,
-      }
-    );
+  /*
+   * Fees must always be filtered by the authenticated user.
+   */
+  const {
+    data: feesData,
+    loading: feesLoading,
+    error: feesError,
+  } = useLiveCollection<Fee>(
+    user?.uid ? firestoreDb : null,
+    "fees",
+    {
+      filters: user?.uid
+        ? [
+            {
+              field: "userId",
+              op: "==",
+              value: user.uid,
+            },
+          ]
+        : undefined,
+      limit: 20,
+    }
+  );
 
-  const feeBalance = fees.data.reduce(
+  const feeBalance = feesData.reduce(
     (sum, fee) =>
       sum +
       Number(
@@ -135,18 +166,73 @@ export default function Student() {
     0
   );
 
+  /*
+   * Session loading state.
+   */
+  if (sessionLoading) {
+    return (
+      <PortalShell
+        role="student"
+        title="Student Dashboard"
+      >
+        <div className="grid min-h-[60vh] place-items-center">
+          <div className="flex flex-col items-center gap-3 text-sm text-slate-500">
+            <Loader2 className="h-7 w-7 animate-spin text-[var(--blue)]" />
+            Verifying your student account...
+          </div>
+        </div>
+      </PortalShell>
+    );
+  }
+
+  /*
+   * Session error.
+   */
+  if (sessionError || !user) {
+    return (
+      <PortalShell
+        role="student"
+        title="Student Dashboard"
+      >
+        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-6">
+          <div className="flex items-start gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-red-600 shadow-sm">
+              <CheckCircle2 className="h-5 w-5" />
+            </div>
+
+            <div>
+              <h2 className="font-extrabold text-red-900">
+                Student account could not be verified
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-red-700">
+                {sessionError ||
+                  "Your student account could not be loaded."}
+              </p>
+            </div>
+          </div>
+        </div>
+      </PortalShell>
+    );
+  }
+
   return (
     <PortalShell
       role="student"
       title="Student Dashboard"
     >
       <PageHeading
-        eyebrow={`Welcome, ${user?.name || "Student"}`}
+        eyebrow={`Welcome, ${user.name || "Student"}`}
         title="Your academic overview"
         description="Live academic information from your college account."
       />
 
+      {/* ==================================================
+          SUMMARY
+      ================================================== */}
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+
         <StatCard
           label="Attendance"
           value="—"
@@ -167,7 +253,7 @@ export default function Student() {
 
         <StatCard
           label="Subjects"
-          value={String(subjects.data.length)}
+          value={String(subjectsData.length)}
           icon={BookOpen}
           trend="Live subject allocation"
         />
@@ -175,20 +261,25 @@ export default function Student() {
         <StatCard
           label="Fee Balance"
           value={
-            fees.data.length
-              ? `₹${feeBalance.toLocaleString(
-                  "en-IN"
-                )}`
+            feesData.length
+              ? `₹${feeBalance.toLocaleString("en-IN")}`
               : "—"
           }
           icon={CreditCard}
           trend="Live fee records"
         />
+
       </div>
 
+      {/* ==================================================
+          SUBJECTS + ACCOUNT
+      ================================================== */}
+
       <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
+
         <div className="card p-6">
-          <div className="flex items-center justify-between">
+
+          <div className="flex items-center justify-between gap-3">
             <div>
               <h3 className="font-extrabold text-[var(--navy)]">
                 Subjects
@@ -200,40 +291,47 @@ export default function Student() {
             </div>
 
             <Badge tone="blue">
-              {subjects.data.length} subjects
+              {subjectsData.length} subjects
             </Badge>
           </div>
 
           <div className="mt-6 grid gap-5">
-            {subjects.loading && (
-              <div className="text-sm text-slate-500">
-                Loading subjects…
+
+            {subjectsLoading && (
+              <div className="flex items-center gap-2 text-sm text-slate-500">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading subjects...
               </div>
             )}
 
-            {!subjects.loading &&
-              !subjects.data.length && (
+            {subjectsError && (
+              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                Unable to load your subjects.
+              </div>
+            )}
+
+            {!subjectsLoading &&
+              !subjectsError &&
+              !subjectsData.length && (
                 <div className="rounded-xl bg-slate-50 p-5 text-sm text-slate-500">
                   No subjects have been assigned
                   to your account yet.
                 </div>
               )}
 
-            {subjects.data.map((subject) => (
+            {subjectsData.map((subject) => (
               <Progress
                 key={subject.id}
-                value={Number(
-                  subject.attendance ?? 0
-                )}
-                label={
-                  subject.name || "Subject"
-                }
+                value={Number(subject.attendance ?? 0)}
+                label={subject.name || "Subject"}
               />
             ))}
+
           </div>
         </div>
 
         <div className="card p-6">
+
           <div className="flex items-center justify-between">
             <h3 className="font-extrabold text-[var(--navy)]">
               Account
@@ -243,6 +341,7 @@ export default function Student() {
           </div>
 
           <div className="mt-5 grid gap-3">
+
             <AccountRow
               label="Student ID"
               value={
@@ -274,12 +373,20 @@ export default function Student() {
                 "Not assigned"
               }
             />
+
           </div>
         </div>
+
       </div>
 
+      {/* ==================================================
+          NOTICES + STATUS
+      ================================================== */}
+
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
+
         <div className="card p-6">
+
           <div className="flex items-center justify-between">
             <h3 className="font-extrabold text-[var(--navy)]">
               Recent notices
@@ -289,13 +396,22 @@ export default function Student() {
           </div>
 
           <div className="mt-4 divide-y divide-slate-100">
+
             {notices.loading && (
-              <div className="py-4 text-sm text-slate-500">
-                Loading notices…
+              <div className="flex items-center gap-2 py-4 text-sm text-slate-500">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Loading notices...
+              </div>
+            )}
+
+            {notices.error && (
+              <div className="py-4 text-sm text-red-600">
+                Unable to load notices.
               </div>
             )}
 
             {!notices.loading &&
+              !notices.error &&
               !notices.data.length && (
                 <div className="py-4 text-sm text-slate-500">
                   No published notices.
@@ -308,8 +424,7 @@ export default function Student() {
                 className="py-4"
               >
                 <div className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">
-                  {notice.category ||
-                    "General"}
+                  {notice.category || "General"}
                 </div>
 
                 <div className="mt-1 text-sm font-bold text-slate-800">
@@ -317,26 +432,51 @@ export default function Student() {
                 </div>
 
                 <div className="mt-1 text-xs text-slate-500">
-                  {notice.publishedAt ||
-                    "Recently"}
+                  {notice.publishedAt || "Recently"}
                 </div>
               </div>
             ))}
+
           </div>
         </div>
 
         <div className="card p-6">
+
           <h3 className="font-extrabold text-[var(--navy)]">
             Live account status
           </h3>
 
           <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-6 text-emerald-800">
-            Your login identity and portal role are
-            verified from Firebase Authentication and
-            your Firestore user profile on every portal
-            load.
+            <div className="font-bold">
+              Student account verified
+            </div>
+
+            <div className="mt-1">
+              Your Firebase Authentication identity
+              and Firestore student role are active.
+            </div>
           </div>
+
+          {(studentLoading ||
+            subjectsLoading ||
+            feesLoading) && (
+            <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              Syncing live academic information...
+            </div>
+          )}
+
+          {(studentError ||
+            subjectsError ||
+            feesError) && (
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-800">
+              Some academic information could not be
+              loaded. Your login session is still active.
+            </div>
+          )}
+
         </div>
+
       </div>
     </PortalShell>
   );
@@ -350,12 +490,12 @@ function AccountRow({
   value: string;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
+    <div className="flex items-center justify-between gap-4 rounded-xl bg-slate-50 px-4 py-3">
       <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
         {label}
       </span>
 
-      <span className="text-sm font-extrabold text-[var(--navy)]">
+      <span className="text-right text-sm font-extrabold text-[var(--navy)]">
         {value}
       </span>
     </div>
