@@ -1,960 +1,660 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
+  Award,
   BookOpen,
+  BrainCircuit,
   CheckCircle2,
+  ChevronRight,
   Code2,
+  Cpu,
   Database,
   GraduationCap,
   Laptop,
-  Monitor,
+  Network,
+  Rocket,
+  ShieldCheck,
+  Sparkles,
   Users,
+  Wifi,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 import PublicShell from "@/components/public/PublicShell";
+import SectionTitle from "@/components/ui/SectionTitle";
 
-const areas = [
+const facilities = [
+  {
+    icon: Laptop,
+    title: "Modern Computer Labs",
+    text: "Well-equipped computer laboratories designed for programming, practical sessions and project development.",
+  },
   {
     icon: Code2,
-    title: "Programming",
-    text: "Develop programming fundamentals, logical thinking and problem-solving ability.",
+    title: "Programming Practice",
+    text: "Students gain hands-on experience with programming concepts, algorithms, software development and problem solving.",
   },
   {
     icon: Database,
-    title: "Database Systems",
-    text: "Understand data storage, SQL, database design and information management.",
+    title: "Database Learning",
+    text: "Practical exposure to database design, SQL, data management and modern information systems.",
   },
   {
-    icon: Laptop,
-    title: "Web Technology",
-    text: "Build knowledge of websites, web applications and modern digital technologies.",
+    icon: Network,
+    title: "Networking",
+    text: "Learn computer networks, communication technologies, internet fundamentals and network security concepts.",
   },
   {
-    icon: Monitor,
-    title: "Software Applications",
-    text: "Learn how software systems are designed, developed and maintained.",
+    icon: BrainCircuit,
+    title: "Emerging Technology",
+    text: "Introduction to AI, machine learning, cloud computing and other technologies shaping the digital world.",
+  },
+  {
+    icon: Wifi,
+    title: "Connected Campus",
+    text: "Digital resources and internet connectivity support academic learning, research and project work.",
   },
 ];
 
-const facilities = [
-  "Computer-based practical learning",
-  "Programming and application practice",
-  "Database and web technology learning",
-  "Project-oriented academic work",
+const technologies = [
+  "C / C++",
+  "Java",
+  "Python",
+  "HTML & CSS",
+  "JavaScript",
+  "React",
+  "SQL",
+  "Database Systems",
+  "Computer Networks",
+  "Operating Systems",
+  "Cloud Computing",
+  "Artificial Intelligence",
+];
+
+const careers = [
+  {
+    title: "Software Developer",
+    text: "Build applications, websites and software solutions for organizations and technology companies.",
+    icon: Code2,
+  },
+  {
+    title: "Web Developer",
+    text: "Create modern responsive websites and web applications using frontend and backend technologies.",
+    icon: Laptop,
+  },
+  {
+    title: "Database Professional",
+    text: "Work with databases, SQL, data management and information systems.",
+    icon: Database,
+  },
+  {
+    title: "System & Network Support",
+    text: "Support computer systems, networks, servers and digital infrastructure.",
+    icon: Network,
+  },
+  {
+    title: "IT Support Specialist",
+    text: "Help organizations maintain their computers, applications and technology infrastructure.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Entrepreneur",
+    text: "Use technical and business knowledge to create software products, services and startups.",
+    icon: Rocket,
+  },
+];
+
+const stats = [
+  { value: "3+", label: "Years of Study" },
+  { value: "100%", label: "Practical Focus" },
+  { value: "12+", label: "Technology Areas" },
+  { value: "∞", label: "Career Possibilities" },
 ];
 
 export default function DepartmentsPage() {
   return (
     <PublicShell>
-      <main className="departments-page">
-
+      <main className="overflow-hidden bg-[var(--bg)]">
         {/* HERO */}
-        <section className="department-hero">
-          <div className="department-grid" />
-          <div className="department-glow department-glow-one" />
-          <div className="department-glow department-glow-two" />
+        <section className="relative isolate overflow-hidden bg-[var(--navy)]">
+          {/* Animated background */}
+          <motion.div
+            className="pointer-events-none absolute -left-32 top-20 h-80 w-80 rounded-full bg-blue-500/20 blur-3xl"
+            animate={{
+              x: [0, 80, 0],
+              y: [0, 40, 0],
+            }}
+            transition={{
+              duration: 9,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
 
-          <div className="container-page relative z-10 py-20 sm:py-24 lg:py-28">
-            <div className="max-w-5xl">
+          <motion.div
+            className="pointer-events-none absolute -right-20 bottom-0 h-96 w-96 rounded-full bg-cyan-400/15 blur-3xl"
+            animate={{
+              x: [0, -70, 0],
+              y: [0, -30, 0],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
 
-              <div className="department-eyebrow">
-                <span />
-                Academic Department
-              </div>
+          {/* Grid */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.08]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.7) 1px, transparent 1px)",
+              backgroundSize: "42px 42px",
+            }}
+          />
 
-              <div className="mt-5 flex items-center gap-3 text-sm font-bold text-blue-200">
-                <span>BCA</span>
-                <span className="h-1 w-1 rounded-full bg-blue-300" />
-                <span>Computer Applications</span>
-              </div>
-
-              <h1 className="department-title">
-                Department of{" "}
-                <span>Computer Applications</span>
-              </h1>
-
-              <p className="department-lead">
-                A focused academic environment for students who
-                want to build strong foundations in programming,
-                databases, web technology and computer applications.
-              </p>
-
-              <div className="department-actions">
-                <Link
-                  href="/courses/bca"
-                  className="department-primary"
-                >
-                  Explore BCA Programme
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-
-                <Link
-                  href="/contact"
-                  className="department-secondary"
-                >
-                  Contact Department
-                </Link>
-              </div>
-
-              <div className="department-meta">
-
-                <Meta
-                  icon={GraduationCap}
-                  label="Programme"
-                  value="Bachelor of Computer Applications"
-                />
-
-                <Meta
-                  icon={BookOpen}
-                  label="Focus"
-                  value="Computer Applications"
-                />
-
-                <Meta
-                  icon={Users}
-                  label="Learning"
-                  value="Academic + Practical"
-                />
-
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ABOUT DEPARTMENT */}
-        <section className="section-space bg-white">
-          <div className="container-page">
-
-            <div className="department-intro">
-
-              <div>
-                <div className="section-eyebrow">
-                  About the Department
+          <div className="container-page relative py-20 lg:py-28">
+            <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_.9fr]">
+              <motion.div
+                initial={{ opacity: 0, x: -35 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7 }}
+              >
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-cyan-100 backdrop-blur">
+                  <Sparkles className="h-4 w-4 text-[var(--gold)]" />
+                  Academic Departments
                 </div>
 
-                <h2 className="section-title">
-                  Building practical computing knowledge.
-                </h2>
-
-                <p className="section-text">
-                  The Department of Computer Applications is
-                  centered on helping students develop the
-                  knowledge and skills needed to understand
-                  computer systems and software applications.
-                </p>
-
-                <p className="section-text">
-                  Through a combination of academic concepts and
-                  practical learning, students can progressively
-                  develop programming, database, web and software
-                  development skills.
-                </p>
-              </div>
-
-              <div className="department-profile-card">
-                <div className="profile-icon">
-                  <Code2 className="h-6 w-6" />
-                </div>
-
-                <div className="text-xs font-bold uppercase tracking-[0.16em] text-blue-200">
-                  Department Focus
-                </div>
-
-                <h3>
-                  Learn technology.
+                <h1 className="mt-6 max-w-4xl text-5xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
+                  Learn.
+                  <span className="text-[var(--gold)]"> Build.</span>
                   <br />
-                  Build solutions.
-                </h3>
+                  <span className="bg-gradient-to-r from-cyan-300 via-blue-300 to-white bg-clip-text text-transparent">
+                    Innovate.
+                  </span>
+                </h1>
 
-                <div className="profile-points">
-                  <ProfilePoint text="Programming fundamentals" />
-                  <ProfilePoint text="Database technologies" />
-                  <ProfilePoint text="Web development" />
-                  <ProfilePoint text="Application development" />
-                </div>
-              </div>
+                <p className="mt-7 max-w-2xl text-lg leading-8 text-blue-100">
+                  Explore the academic departments of The National Degree
+                  College, Bagepalli, with a strong focus on practical
+                  education, technology, innovation and career development.
+                </p>
 
-            </div>
-          </div>
-        </section>
-
-        {/* AREAS */}
-        <section className="department-soft-section">
-          <div className="container-page">
-
-            <div className="max-w-3xl">
-              <div className="section-eyebrow">
-                Areas of Learning
-              </div>
-
-              <h2 className="section-title">
-                Core areas of the department.
-              </h2>
-
-              <p className="section-text">
-                The department can provide students with a
-                progressive foundation across important areas of
-                computer applications.
-              </p>
-            </div>
-
-            <div className="areas-grid">
-              {areas.map(
-                ({ icon: Icon, title, text }) => (
-                  <div
-                    key={title}
-                    className="area-card"
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link
+                    href="/courses/bca"
+                    className="group inline-flex items-center gap-2 rounded-xl bg-[var(--gold)] px-5 py-3 font-bold text-[var(--navy)] shadow-lg shadow-yellow-500/10 transition hover:-translate-y-1"
                   >
-                    <div className="area-icon">
-                      <Icon className="h-5 w-5" />
-                    </div>
+                    Explore BCA
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
 
-                    <h3>{title}</h3>
+                  <Link
+                    href="/admissions"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-3 font-bold text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/15"
+                  >
+                    Admissions
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </div>
 
-                    <p>{text}</p>
+                <div className="mt-8 flex flex-wrap gap-5 text-sm text-blue-100">
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+                    Practical learning
+                  </span>
 
-                    <div className="area-arrow">
-                      <ArrowRight className="h-4 w-4" />
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+                    Technology focused
+                  </span>
+
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+                    Career oriented
+                  </span>
+                </div>
+              </motion.div>
+
+              {/* Hero image */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="relative"
+              >
+                <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-r from-cyan-400/20 via-blue-500/20 to-purple-500/20 blur-2xl" />
+
+                <div className="relative overflow-hidden rounded-[2rem] border border-white/15 bg-white/10 p-2 shadow-2xl backdrop-blur">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem]">
+                    <Image
+                      src="/images/computer-lab.jpg"
+                      alt="Computer laboratory"
+                      fill
+                      priority
+                      className="object-cover transition duration-700 hover:scale-105"
+                    />
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--navy)]/80 via-transparent to-transparent" />
+
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <div className="flex items-center gap-3">
+                        <div className="grid h-12 w-12 place-items-center rounded-xl bg-white/15 backdrop-blur">
+                          <Cpu className="h-6 w-6 text-cyan-200" />
+                        </div>
+
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-wider text-cyan-200">
+                            Technology
+                          </p>
+                          <h2 className="text-xl font-black text-white">
+                            Computer Science & Applications
+                          </h2>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                )
-              )}
+                </div>
+
+                <motion.div
+                  className="absolute -bottom-6 -left-6 hidden rounded-2xl border border-white/10 bg-white p-4 shadow-2xl sm:block"
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-11 w-11 place-items-center rounded-xl bg-blue-50 text-[var(--blue)]">
+                      <GraduationCap className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-400">
+                        Learning
+                      </p>
+                      <p className="font-black text-[var(--navy)]">
+                        Future Ready
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
             </div>
           </div>
         </section>
 
-        {/* ACADEMIC EXPERIENCE */}
-        <section className="section-space bg-white">
+        {/* STATS */}
+        <section className="border-b border-slate-200 bg-white">
+          <div className="container-page grid grid-cols-2 divide-x divide-slate-200 py-8 md:grid-cols-4">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.08 }}
+                className="px-4 text-center first:pl-0 last:pr-0"
+              >
+                <div className="text-3xl font-black text-[var(--blue)]">
+                  {stat.value}
+                </div>
+                <div className="mt-1 text-xs font-bold uppercase tracking-wider text-slate-400">
+                  {stat.label}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* DEPARTMENT INTRO */}
+        <section className="section-space">
           <div className="container-page">
+            <SectionTitle
+              eyebrow="Technology Education"
+              title="Building skills for the digital future"
+              description="Our technology-focused academic environment combines classroom knowledge with practical experience to help students understand how modern technology is designed, developed and used."
+            />
 
-            <div className="experience-grid">
+            <div className="mt-12 grid gap-8 lg:grid-cols-2">
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="relative overflow-hidden rounded-3xl"
+              >
+                <Image
+                  src="/images/bca-students.jpg"
+                  alt="BCA students learning computer technology"
+                  width={1000}
+                  height={700}
+                  className="h-full min-h-[350px] w-full object-cover transition duration-700 hover:scale-105"
+                />
 
-              <div>
-                <div className="section-eyebrow">
-                  Academic Experience
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+
+                <div className="absolute bottom-0 left-0 right-0 p-7 text-white">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold backdrop-blur">
+                    <Users className="h-3.5 w-3.5" />
+                    Student Learning
+                  </div>
+
+                  <h3 className="mt-3 text-2xl font-black">
+                    Learn by doing
+                  </h3>
+
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-white/80">
+                    Practical sessions, projects and technology-based learning
+                    help students turn concepts into real-world skills.
+                  </p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"
+              >
+                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-blue-50 text-[var(--blue)]">
+                  <GraduationCap className="h-7 w-7" />
                 </div>
 
-                <h2 className="section-title">
-                  From classroom concepts to practical skills.
-                </h2>
+                <h3 className="mt-6 text-2xl font-black text-[var(--navy)]">
+                  Bachelor of Computer Applications
+                </h3>
 
-                <p className="section-text">
-                  Students can strengthen their technical
-                  understanding through guided learning,
-                  practical activities and project-oriented work.
+                <p className="mt-4 text-sm leading-7 text-slate-600">
+                  BCA is a technology-oriented undergraduate program designed
+                  for students who want to build a strong foundation in
+                  computer applications, programming, databases, networking,
+                  software development and modern digital technologies.
                 </p>
 
-                <div className="check-list">
-                  {facilities.map((item) => (
+                <p className="mt-4 text-sm leading-7 text-slate-600">
+                  Students develop analytical thinking and practical skills
+                  through programming exercises, laboratory sessions,
+                  assignments and academic projects.
+                </p>
+
+                <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                  {[
+                    "Programming fundamentals",
+                    "Web technologies",
+                    "Database systems",
+                    "Computer networks",
+                    "Software development",
+                    "Project development",
+                  ].map((item) => (
                     <div
                       key={item}
-                      className="check-item"
+                      className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-3 text-sm font-semibold text-slate-700"
                     >
-                      <CheckCircle2 className="h-4 w-4" />
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
                       {item}
                     </div>
                   ))}
                 </div>
-              </div>
-
-              <div className="experience-visual">
-                <div className="visual-ring visual-ring-one" />
-                <div className="visual-ring visual-ring-two" />
-
-                <div className="visual-center">
-                  <Laptop className="h-8 w-8 text-[var(--gold)]" />
-
-                  <div className="mt-3 text-3xl font-black text-white">
-                    BCA
-                  </div>
-
-                  <div className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-blue-200">
-                    Computer Applications
-                  </div>
-                </div>
-              </div>
-
+              </motion.div>
             </div>
           </div>
         </section>
 
-        {/* CAREER CTA */}
-        <section className="department-cta">
+        {/* FACILITIES */}
+        <section className="relative overflow-hidden bg-white py-20">
           <div className="container-page">
+            <SectionTitle
+              eyebrow="Department Facilities"
+              title="A practical environment for technology learning"
+              description="Students need more than textbooks. Our department focuses on practical exposure, experimentation and technology-based learning."
+            />
 
-            <div className="cta-content">
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {facilities.map((facility, index) => {
+                const Icon = facility.icon;
 
-              <div>
-                <div className="text-xs font-bold uppercase tracking-[0.18em] text-blue-200">
-                  Explore the Programme
+                return (
+                  <motion.article
+                    key={facility.title}
+                    initial={{ opacity: 0, y: 25 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.07 }}
+                    whileHover={{ y: -7 }}
+                    className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-blue-200 hover:shadow-xl"
+                  >
+                    <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-blue-50 opacity-0 blur-2xl transition group-hover:opacity-100" />
+
+                    <div className="relative">
+                      <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 text-[var(--blue)] transition group-hover:scale-110">
+                        <Icon className="h-6 w-6" />
+                      </div>
+
+                      <h3 className="mt-5 text-lg font-black text-[var(--navy)]">
+                        {facility.title}
+                      </h3>
+
+                      <p className="mt-2 text-sm leading-6 text-slate-500">
+                        {facility.text}
+                      </p>
+                    </div>
+                  </motion.article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* COMPUTER LAB */}
+        <section className="section-space">
+          <div className="container-page">
+            <div className="grid items-center gap-10 lg:grid-cols-[.85fr_1.15fr]">
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+              >
+                <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--blue)]">
+                  <Laptop className="h-4 w-4" />
+                  Computer Laboratory
                 </div>
 
-                <h2>
-                  Discover where BCA can take you.
+                <h2 className="mt-5 text-3xl font-black tracking-tight text-[var(--navy)] sm:text-4xl">
+                  Where concepts become practical skills.
                 </h2>
 
-                <p>
-                  Explore the full programme structure, subjects,
-                  skills, career opportunities and student
-                  experience.
+                <p className="mt-5 text-sm leading-7 text-slate-600">
+                  Computer laboratory sessions provide students with an
+                  environment to practice programming, database management,
+                  web development, networking concepts and software projects.
+                </p>
+
+                <div className="mt-7 space-y-4">
+                  {[
+                    "Hands-on programming practice",
+                    "Web and application development",
+                    "Database and SQL exercises",
+                    "Academic project development",
+                  ].map((item) => (
+                    <div key={item} className="flex items-center gap-3">
+                      <div className="grid h-8 w-8 place-items-center rounded-full bg-emerald-50">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                      </div>
+                      <span className="text-sm font-semibold text-slate-700">
+                        {item}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className="relative"
+              >
+                <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-blue-500/10 via-cyan-400/10 to-purple-500/10 blur-2xl" />
+
+                <div className="relative grid gap-4 sm:grid-cols-2">
+                  <Image
+                    src="/images/computer-lab.jpg"
+                    alt="College computer laboratory"
+                    width={800}
+                    height={600}
+                    className="h-64 w-full rounded-2xl object-cover shadow-lg sm:h-72"
+                  />
+
+                  <Image
+                    src="/images/computer-class.jpg"
+                    alt="Computer science classroom"
+                    width={800}
+                    height={600}
+                    className="h-64 w-full rounded-2xl object-cover shadow-lg sm:mt-8 sm:h-72"
+                  />
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* TECHNOLOGIES */}
+        <section className="bg-[var(--navy)] py-20 text-white">
+          <div className="container-page">
+            <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-cyan-100">
+                  <Code2 className="h-4 w-4 text-cyan-300" />
+                  Technology Stack
+                </div>
+
+                <h2 className="mt-5 text-3xl font-black sm:text-4xl">
+                  Explore the technologies behind modern software.
+                </h2>
+
+                <p className="mt-5 text-sm leading-7 text-blue-100">
+                  A strong technology foundation gives students the confidence
+                  to understand existing systems and build new digital
+                  solutions.
                 </p>
               </div>
 
-              <div className="cta-actions">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {technologies.map((technology, index) => (
+                  <motion.div
+                    key={technology}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.04 }}
+                    whileHover={{ scale: 1.04 }}
+                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-4 text-center text-sm font-bold text-blue-50 backdrop-blur transition hover:border-cyan-300/30 hover:bg-white/10"
+                  >
+                    {technology}
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CAREERS */}
+        <section className="section-space">
+          <div className="container-page">
+            <SectionTitle
+              eyebrow="Career Opportunities"
+              title="Where can a BCA education take you?"
+              description="Technology skills can open opportunities across software development, web technologies, databases, IT infrastructure, support services and entrepreneurship."
+            />
+
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {careers.map((career, index) => {
+                const Icon = career.icon;
+
+                return (
+                  <motion.article
+                    key={career.title}
+                    initial={{ opacity: 0, y: 25 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.06 }}
+                    whileHover={{ y: -6 }}
+                    className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-xl"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="grid h-12 w-12 place-items-center rounded-xl bg-blue-50 text-[var(--blue)] transition group-hover:bg-[var(--blue)] group-hover:text-white">
+                        <Icon className="h-6 w-6" />
+                      </div>
+
+                      <Award className="h-5 w-5 text-slate-200 transition group-hover:text-[var(--gold)]" />
+                    </div>
+
+                    <h3 className="mt-5 text-lg font-black text-[var(--navy)]">
+                      {career.title}
+                    </h3>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-500">
+                      {career.text}
+                    </p>
+                  </motion.article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* FINAL CTA */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-blue-700 via-[var(--navy)] to-slate-950 py-20 text-white">
+          <motion.div
+            className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl"
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{
+              duration: 6,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+
+          <div className="container-page relative">
+            <div className="mx-auto max-w-4xl text-center">
+              <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-white/10 backdrop-blur">
+                <GraduationCap className="h-8 w-8 text-[var(--gold)]" />
+              </div>
+
+              <h2 className="mt-6 text-3xl font-black sm:text-5xl">
+                Start building your future with technology.
+              </h2>
+
+              <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-blue-100">
+                Discover the BCA program, explore academic opportunities and
+                take the next step toward a technology-focused career.
+              </p>
+
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Link
                   href="/courses/bca"
-                  className="department-primary"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[var(--gold)] px-6 py-3 font-bold text-[var(--navy)] transition hover:-translate-y-1"
                 >
-                  View BCA Details
+                  Explore BCA Course
                   <ArrowRight className="h-4 w-4" />
                 </Link>
 
                 <Link
                   href="/contact"
-                  className="cta-secondary"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3 font-bold text-white backdrop-blur transition hover:bg-white/15"
                 >
-                  Contact Us
+                  Contact College
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
-
             </div>
           </div>
         </section>
-
       </main>
-
-      <style jsx global>{`
-        .departments-page {
-          overflow: hidden;
-          background: #f8fafc;
-        }
-
-        .department-hero {
-          position: relative;
-          overflow: hidden;
-          color: white;
-          background:
-            radial-gradient(
-              circle at 84% 18%,
-              rgba(59, 130, 246, 0.24),
-              transparent 30%
-            ),
-            linear-gradient(
-              135deg,
-              #071b40,
-              #0b316f 48%,
-              #1457af
-            );
-        }
-
-        .department-grid {
-          position: absolute;
-          inset: 0;
-          opacity: 0.13;
-          background-image:
-            linear-gradient(
-              rgba(255, 255, 255, 0.12) 1px,
-              transparent 1px
-            ),
-            linear-gradient(
-              90deg,
-              rgba(255, 255, 255, 0.12) 1px,
-              transparent 1px
-            );
-          background-size: 44px 44px;
-          mask-image: linear-gradient(
-            to bottom,
-            black,
-            transparent 90%
-          );
-        }
-
-        .department-glow {
-          position: absolute;
-          border-radius: 999px;
-          filter: blur(60px);
-          pointer-events: none;
-        }
-
-        .department-glow-one {
-          width: 360px;
-          height: 360px;
-          right: -120px;
-          top: -120px;
-          background: rgba(59, 130, 246, 0.24);
-          animation: departmentFloatOne 9s ease-in-out infinite;
-        }
-
-        .department-glow-two {
-          width: 250px;
-          height: 250px;
-          left: 10%;
-          bottom: -150px;
-          background: rgba(212, 175, 55, 0.10);
-          animation: departmentFloatTwo 11s ease-in-out infinite;
-        }
-
-        .department-eyebrow,
-        .section-eyebrow {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          color: var(--gold);
-          font-size: 11px;
-          font-weight: 900;
-          letter-spacing: 0.17em;
-          text-transform: uppercase;
-        }
-
-        .department-eyebrow span {
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          background: #34d399;
-          box-shadow: 0 0 14px rgba(52, 211, 153, 0.8);
-          animation: departmentPulse 2s ease-in-out infinite;
-        }
-
-        .department-title {
-          max-width: 850px;
-          margin-top: 14px;
-          font-size: clamp(44px, 6vw, 76px);
-          line-height: 0.98;
-          letter-spacing: -0.05em;
-          font-weight: 950;
-        }
-
-        .department-title span {
-          color: var(--gold);
-        }
-
-        .department-lead {
-          max-width: 760px;
-          margin-top: 23px;
-          color: rgba(219, 234, 254, 0.84);
-          font-size: 17px;
-          line-height: 1.85;
-        }
-
-        .department-actions {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 11px;
-          margin-top: 29px;
-        }
-
-        .department-primary {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          padding: 13px 18px;
-          border-radius: 13px;
-          background: var(--gold);
-          color: var(--navy);
-          font-size: 13px;
-          font-weight: 900;
-          text-decoration: none;
-          transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-        }
-
-        .department-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 15px 30px rgba(0, 0, 0, 0.16);
-        }
-
-        .department-secondary {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 13px 18px;
-          border-radius: 13px;
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          background: rgba(255, 255, 255, 0.06);
-          color: white;
-          font-size: 13px;
-          font-weight: 800;
-          text-decoration: none;
-        }
-
-        .department-meta {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          max-width: 760px;
-          margin-top: 42px;
-          padding-top: 23px;
-          border-top: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
-        .department-meta-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding-right: 17px;
-        }
-
-        .department-meta-item + .department-meta-item {
-          padding-left: 17px;
-          border-left: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .department-meta-icon {
-          width: 39px;
-          height: 39px;
-          display: grid;
-          place-items: center;
-          border-radius: 12px;
-          background: rgba(255, 255, 255, 0.08);
-          color: var(--gold);
-        }
-
-        .department-meta-label {
-          color: #93c5fd;
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-        }
-
-        .department-meta-value {
-          margin-top: 3px;
-          color: white;
-          font-size: 12px;
-          font-weight: 800;
-        }
-
-        .department-intro {
-          display: grid;
-          grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
-          gap: 55px;
-          align-items: center;
-        }
-
-        .section-title {
-          margin-top: 10px;
-          color: var(--navy);
-          font-size: clamp(30px, 4vw, 48px);
-          line-height: 1.05;
-          letter-spacing: -0.04em;
-          font-weight: 950;
-        }
-
-        .section-text {
-          max-width: 690px;
-          margin-top: 17px;
-          color: #64748b;
-          font-size: 15px;
-          line-height: 1.85;
-        }
-
-        .department-profile-card {
-          position: relative;
-          overflow: hidden;
-          padding: 29px;
-          border-radius: 28px;
-          color: white;
-          background:
-            radial-gradient(
-              circle at 90% 10%,
-              rgba(59, 130, 246, 0.22),
-              transparent 30%
-            ),
-            linear-gradient(
-              145deg,
-              #071b40,
-              #104a9d
-            );
-          box-shadow: 0 25px 60px rgba(15, 61, 145, 0.16);
-        }
-
-        .profile-icon {
-          width: 52px;
-          height: 52px;
-          display: grid;
-          place-items: center;
-          border-radius: 16px;
-          background: rgba(255, 255, 255, 0.09);
-          color: var(--gold);
-        }
-
-        .department-profile-card h3 {
-          margin-top: 10px;
-          font-size: 28px;
-          line-height: 1.1;
-          font-weight: 950;
-        }
-
-        .profile-points {
-          display: grid;
-          gap: 9px;
-          margin-top: 24px;
-        }
-
-        .profile-point {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 11px 12px;
-          border-radius: 13px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          background: rgba(255, 255, 255, 0.04);
-          color: #dbeafe;
-          font-size: 11px;
-          font-weight: 700;
-        }
-
-        .profile-point svg {
-          color: #34d399;
-        }
-
-        .department-soft-section {
-          padding: 95px 0;
-          background: linear-gradient(
-            180deg,
-            #f8fafc,
-            #edf4fb
-          );
-        }
-
-        .areas-grid {
-          display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 17px;
-          margin-top: 40px;
-        }
-
-        .area-card {
-          position: relative;
-          overflow: hidden;
-          padding: 24px;
-          border: 1px solid #e2e8f0;
-          border-radius: 22px;
-          background: white;
-          transition:
-            transform 0.24s ease,
-            box-shadow 0.24s ease,
-            border-color 0.24s ease;
-        }
-
-        .area-card:hover {
-          transform: translateY(-6px);
-          border-color: #bfdbfe;
-          box-shadow: 0 20px 40px rgba(15, 61, 145, 0.09);
-        }
-
-        .area-icon {
-          width: 49px;
-          height: 49px;
-          display: grid;
-          place-items: center;
-          border-radius: 14px;
-          background: #eff6ff;
-          color: var(--blue);
-        }
-
-        .area-card h3 {
-          margin-top: 17px;
-          color: var(--navy);
-          font-size: 17px;
-          font-weight: 900;
-        }
-
-        .area-card p {
-          margin-top: 8px;
-          color: #64748b;
-          font-size: 12px;
-          line-height: 1.75;
-        }
-
-        .area-arrow {
-          width: 32px;
-          height: 32px;
-          display: grid;
-          place-items: center;
-          margin-top: 18px;
-          border-radius: 10px;
-          background: #f8fafc;
-          color: var(--blue);
-        }
-
-        .experience-grid {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) minmax(340px, 0.9fr);
-          gap: 55px;
-          align-items: center;
-        }
-
-        .check-list {
-          display: grid;
-          gap: 10px;
-          margin-top: 25px;
-        }
-
-        .check-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #334155;
-          font-size: 12px;
-          font-weight: 800;
-        }
-
-        .check-item svg {
-          color: #16a34a;
-          flex-shrink: 0;
-        }
-
-        .experience-visual {
-          position: relative;
-          min-height: 340px;
-          display: grid;
-          place-items: center;
-          overflow: hidden;
-          border-radius: 28px;
-          background:
-            radial-gradient(
-              circle at center,
-              rgba(59, 130, 246, 0.32),
-              transparent 48%
-            ),
-            linear-gradient(
-              145deg,
-              #10499b,
-              #0a326f
-            );
-        }
-
-        .visual-ring {
-          position: absolute;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 50%;
-          animation: rotateDepartment 20s linear infinite;
-        }
-
-        .visual-ring-one {
-          width: 230px;
-          height: 230px;
-        }
-
-        .visual-ring-two {
-          width: 310px;
-          height: 310px;
-          animation-direction: reverse;
-          animation-duration: 26s;
-        }
-
-        .visual-center {
-          position: relative;
-          z-index: 2;
-          width: 165px;
-          height: 165px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.13);
-          background: rgba(255, 255, 255, 0.07);
-          backdrop-filter: blur(12px);
-          text-align: center;
-          box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
-        }
-
-        .department-cta {
-          padding: 75px 0;
-          color: white;
-          background: #071b40;
-        }
-
-        .cta-content {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 35px;
-        }
-
-        .cta-content h2 {
-          margin-top: 10px;
-          font-size: clamp(30px, 4vw, 46px);
-          line-height: 1.05;
-          letter-spacing: -0.04em;
-          font-weight: 950;
-        }
-
-        .cta-content p {
-          max-width: 620px;
-          margin-top: 12px;
-          color: #bfdbfe;
-          font-size: 14px;
-          line-height: 1.75;
-        }
-
-        .cta-actions {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-          flex-shrink: 0;
-        }
-
-        .cta-secondary {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 13px 18px;
-          border: 1px solid rgba(255, 255, 255, 0.14);
-          border-radius: 13px;
-          background: rgba(255, 255, 255, 0.06);
-          color: white;
-          font-size: 13px;
-          font-weight: 800;
-          text-decoration: none;
-        }
-
-        @keyframes departmentPulse {
-          0%,
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-
-          50% {
-            transform: scale(1.35);
-            opacity: 0.65;
-          }
-        }
-
-        @keyframes departmentFloatOne {
-          0%,
-          100% {
-            transform: translate(0, 0);
-          }
-
-          50% {
-            transform: translate(-30px, 25px) scale(1.08);
-          }
-        }
-
-        @keyframes departmentFloatTwo {
-          0%,
-          100% {
-            transform: translate(0, 0);
-          }
-
-          50% {
-            transform: translate(25px, -20px) scale(1.08);
-          }
-        }
-
-        @keyframes rotateDepartment {
-          from {
-            transform: rotate(0deg);
-          }
-
-          to {
-            transform: rotate(360deg);
-          }
-        }
-
-        @media (max-width: 1024px) {
-          .department-intro,
-          .experience-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .areas-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-
-          .cta-content {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-        }
-
-        @media (max-width: 640px) {
-          .department-title {
-            font-size: 42px;
-          }
-
-          .department-lead {
-            font-size: 15px;
-          }
-
-          .department-meta {
-            grid-template-columns: 1fr;
-            gap: 13px;
-          }
-
-          .department-meta-item,
-          .department-meta-item + .department-meta-item {
-            padding: 0;
-            border-left: 0;
-          }
-
-          .areas-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .experience-visual {
-            min-height: 280px;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          *,
-          *::before,
-          *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-      `}</style>
     </PublicShell>
-  );
-}
-
-function Meta({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: typeof GraduationCap;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="department-meta-item">
-      <div className="department-meta-icon">
-        <Icon className="h-4 w-4" />
-      </div>
-
-      <div>
-        <div className="department-meta-label">
-          {label}
-        </div>
-
-        <div className="department-meta-value">
-          {value}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ProfilePoint({
-  text,
-}: {
-  text: string;
-}) {
-  return (
-    <div className="profile-point">
-      <CheckCircle2 className="h-4 w-4" />
-      {text}
-    </div>
   );
 }
