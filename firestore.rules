@@ -11,11 +11,6 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function ownUser(userId) {
-      return signedIn()
-        && request.auth.uid == userId;
-    }
-
     function userDoc() {
       return get(
         /databases/$(database)/documents/users/$(request.auth.uid)
@@ -44,55 +39,28 @@ service cloud.firestore {
 
 
     // ==================================================
-    // USERS / PROFILES
+    // USERS
     // ==================================================
 
     match /users/{userId} {
 
-      // A user can read their own profile.
-      // Admin can read all profiles.
-      allow read: if ownUser(userId)
-        || isAdmin();
+      // User can read their own profile.
+      // Admin can read all users.
+      allow read: if isAdmin()
+        || (
+          signedIn()
+          && request.auth.uid == userId
+        );
 
-      // New Google users can create only their own
-      // pending profile.
-      allow create: if ownUser(userId)
+      // New Google users can create only their
+      // own pending account.
+      allow create: if signedIn()
+        && request.auth.uid == userId
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.role == "pending"
         && request.resource.data.status == "pending";
 
-      // Users can update only permitted profile fields.
-      // Role, status, UID, email and college-managed
-      // identifiers remain protected.
-      allow update: if ownUser(userId)
-        && request.resource.data.uid == resource.data.uid
-        && request.resource.data.email == resource.data.email
-        && request.resource.data.role == resource.data.role
-        && request.resource.data.status == resource.data.status
-        && request.resource.data.diff(resource.data)
-          .affectedKeys()
-          .hasOnly([
-            "name",
-            "phone",
-            "photoData",
-            "photoURL",
-            "dateOfBirth",
-            "gender",
-            "address",
-            "city",
-            "state",
-            "pinCode",
-            "guardianName",
-            "guardianPhone",
-            "emergencyContact",
-            "designation",
-            "qualification",
-            "specialization",
-            "experience",
-            "updatedAt"
-          ]);
-
-      // Admin can fully manage users.
+      // Only Admin can modify or delete users.
       allow update, delete: if isAdmin();
     }
 
@@ -103,7 +71,7 @@ service cloud.firestore {
 
     match /notices/{document} {
 
-      // Public website can read only published notices.
+      // Public can read published notices.
       allow read: if resource.data.status == "published";
 
       // Admin manages notices.
@@ -120,7 +88,7 @@ service cloud.firestore {
       // Public website.
       allow read: if true;
 
-      // Admin only.
+      // Admin manages courses.
       allow create, update, delete: if isAdmin();
     }
 
@@ -134,7 +102,7 @@ service cloud.firestore {
       // Public website realtime listener.
       allow read: if true;
 
-      // Admin only.
+      // Admin manages departments.
       allow create, update, delete: if isAdmin();
     }
 
@@ -148,7 +116,7 @@ service cloud.firestore {
       // Public website realtime listener.
       allow read: if true;
 
-      // Admin only.
+      // Admin manages events.
       allow create, update, delete: if isAdmin();
     }
 
@@ -159,11 +127,11 @@ service cloud.firestore {
 
     match /queries/{queryId} {
 
-      // Only active admins can read queries.
+      // Only Admin can read contact queries.
       allow read: if isAdmin();
 
-      // Queries are written through the Next.js server API
-      // using Firebase Admin SDK.
+      // Public/API does not write directly from browser.
+      // Next.js API uses Firebase Admin SDK.
       allow create, update, delete: if false;
     }
 
@@ -181,24 +149,24 @@ service cloud.firestore {
       allow read: if isFaculty()
         && resource.data.facultyId == request.auth.uid;
 
-      // Students see only their own attendance.
+      // Student sees only their attendance.
       allow read: if isStudent()
         && resource.data.studentUserId == request.auth.uid;
 
-      // Admin can fully manage attendance.
+      // Admin can manage all attendance.
       allow create, update, delete: if isAdmin();
 
-      // Faculty can create attendance under own UID.
+      // Faculty can create their own attendance.
       allow create: if isFaculty()
         && request.resource.data.facultyId == request.auth.uid
         && request.resource.data.markedBy == request.auth.uid;
 
-      // Faculty can update only their own attendance.
+      // Faculty can update their own attendance.
       allow update: if isFaculty()
         && resource.data.facultyId == request.auth.uid
         && request.resource.data.facultyId == request.auth.uid;
 
-      // Faculty cannot delete attendance.
+      // Faculty cannot delete.
       allow delete: if false;
     }
 
@@ -209,8 +177,8 @@ service cloud.firestore {
 
     match /students/{studentId} {
 
-      // Admin and faculty can read student records.
-      // Students can read only their own record.
+      // Admin and Faculty can read students.
+      // Student can read their own record.
       allow read: if isAdmin()
         || isFaculty()
         || (
@@ -218,7 +186,7 @@ service cloud.firestore {
           && resource.data.userId == request.auth.uid
         );
 
-      // Admin manages student records.
+      // Admin manages students.
       allow create, update, delete: if isAdmin();
     }
 
@@ -229,15 +197,15 @@ service cloud.firestore {
 
     match /faculty/{facultyId} {
 
-      // Admin can see all faculty.
-      // Faculty can see their own profile record.
+      // Admin can read all faculty.
+      // Faculty can read their own record.
       allow read: if isAdmin()
         || (
           isFaculty()
           && resource.data.userId == request.auth.uid
         );
 
-      // Admin manages faculty records.
+      // Admin manages faculty.
       allow create, update, delete: if isAdmin();
     }
 
@@ -280,12 +248,12 @@ service cloud.firestore {
 
     match /assignments/{assignmentId} {
 
-      // Active users can read assignments.
+      // Active academic users can read assignments.
       allow read: if isAdmin()
         || isFaculty()
         || isStudent();
 
-      // Admin and faculty can manage assignments.
+      // Admin and Faculty can manage assignments.
       allow create, update, delete: if isAdmin()
         || isFaculty();
     }
@@ -297,8 +265,8 @@ service cloud.firestore {
 
     match /submissions/{submissionId} {
 
-      // Admin and faculty see all submissions.
-      // Student sees only their own submission.
+      // Admin and Faculty can read all.
+      // Student can read own submission.
       allow read: if isAdmin()
         || isFaculty()
         || (
@@ -306,12 +274,12 @@ service cloud.firestore {
           && resource.data.studentUserId == request.auth.uid
         );
 
-      // Student can create only their own submission.
+      // Student can create only own submission.
       allow create: if isStudent()
         && request.resource.data.studentUserId == request.auth.uid;
 
-      // Admin and faculty can update.
-      // Student can update only their own submission.
+      // Admin and Faculty can update.
+      // Student can update own submission.
       allow update: if isAdmin()
         || isFaculty()
         || (
@@ -319,7 +287,7 @@ service cloud.firestore {
           && resource.data.studentUserId == request.auth.uid
         );
 
-      // Only admin can delete.
+      // Only Admin can delete.
       allow delete: if isAdmin();
     }
 
@@ -341,13 +309,13 @@ service cloud.firestore {
 
 
     // ==================================================
-    // RESULTS / MARKS
+    // RESULTS
     // ==================================================
 
     match /results/{resultId} {
 
-      // Admin and faculty can read all results.
-      // Student can read only their own result.
+      // Admin and Faculty can read all.
+      // Student can read own results.
       allow read: if isAdmin()
         || isFaculty()
         || (
@@ -355,7 +323,7 @@ service cloud.firestore {
           && resource.data.studentUserId == request.auth.uid
         );
 
-      // Admin and faculty can manage results.
+      // Admin and Faculty can manage results.
       allow create, update, delete: if isAdmin()
         || isFaculty();
     }
@@ -367,8 +335,8 @@ service cloud.firestore {
 
     match /fees/{feeId} {
 
-      // Admin can see all fees.
-      // Student can see only their own fees.
+      // Admin can read all.
+      // Student can read own fees.
       allow read: if isAdmin()
         || (
           isStudent()
@@ -386,8 +354,8 @@ service cloud.firestore {
 
     match /leaves/{leaveId} {
 
-      // Admin and faculty can read all leave requests.
-      // Student sees only their own.
+      // Admin and Faculty can read all.
+      // Student can read own requests.
       allow read: if isAdmin()
         || isFaculty()
         || (
@@ -395,12 +363,12 @@ service cloud.firestore {
           && resource.data.studentUserId == request.auth.uid
         );
 
-      // Student can create only their own leave request.
+      // Student can create own request.
       allow create: if isStudent()
         && request.resource.data.studentUserId == request.auth.uid;
 
-      // Admin and faculty can update.
-      // Student can update only their own.
+      // Admin and Faculty can update.
+      // Student can update own request.
       allow update: if isAdmin()
         || isFaculty()
         || (
@@ -408,7 +376,7 @@ service cloud.firestore {
           && resource.data.studentUserId == request.auth.uid
         );
 
-      // Only admin can delete.
+      // Only Admin can delete.
       allow delete: if isAdmin();
     }
 
@@ -419,8 +387,8 @@ service cloud.firestore {
 
     match /notifications/{notificationId} {
 
-      // Admin can read all notifications.
-      // Users can read only their own.
+      // Admin can read all.
+      // User can read own notifications.
       allow read: if isAdmin()
         || (
           signedIn()
@@ -441,9 +409,10 @@ service cloud.firestore {
       // Admin can read audit logs.
       allow read: if isAdmin();
 
-      // Audit logs are server-side only.
+      // Server-side only.
       allow create, update, delete: if false;
     }
 
   }
 }
+

@@ -162,6 +162,43 @@ The website no longer contains a demo login or localStorage-based demo session. 
 
 The public-facing course, department, notice and event sections use live Firestore listeners, so changes made by an authorized administrator propagate to connected users automatically.
 
+# SCMS Profile System
+
+Files for a production-style `/profile` system using the existing Firebase Auth + Firestore client architecture.
+
+## Required packages
+
+```cmd
+npm install react-hook-form zod @hookform/resolvers framer-motion
+```
+
+## Files
+
+- `app/profile/page.tsx`
+- `components/profile/ProfileForm.tsx`
+- `components/profile/ProfilePhotoEditor.tsx`
+- `components/profile/ProfileHeader.tsx`
+- `components/profile/ProfileCompletion.tsx`
+- `components/profile/ProfileSkeleton.tsx`
+- `components/profile/SecuritySettings.tsx`
+- `lib/profile.ts`
+- `types/profile.ts`
+
+## Photo handling
+
+No Firebase Storage is used. The browser validates the image, resizes it to a maximum of 512x512, converts it to WebP, and keeps the result as a data URL for Firestore.
+
+The implementation rejects processed output that is still too large for practical Firestore document storage.
+
+## Integration notes
+
+- The page uses the existing `useScmsSession()` and `firebaseAuth` / `firestoreDb` exports.
+- Academic identifiers such as student ID/USN and employee ID are displayed as read-only.
+- The role is never editable from the profile form.
+- `scms-profile-updated` is dispatched after save so existing navbar/profile UI can refresh immediately.
+- Add the linked profile route to your existing portal navigation if it is not already present.
+
+
 ## Developer
 
 **Made by Tarun D**
