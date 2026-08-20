@@ -3,8 +3,335 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+    // ==================================================
+    // HELPERS
+    // ==================================================
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownUser(userId) {
+      return signedIn()
+        && request.auth.uid == userId;
+    }
+
+    function userDoc() {
+      return get(
+        /databases/$(database)/documents/users/$(request.auth.uid)
+      );
+    }
+
+    function activeUser() {
+      return signedIn()
+        && userDoc().data.status == "active";
+    }
+
+    function isAdmin() {
+      return activeUser()
+        && userDoc().data.role == "admin";
+    }
+
+    function isFaculty() {
+      return activeUser()
+        && userDoc().data.role == "faculty";
+    }
+
+    function isStudent() {
+      return activeUser()
+        && userDoc().data.role == "student";
+    }
+
+    // ==================================================
+    // USERS
+    // ==================================================
+
+    match /users/{userId} {
+
+      allow read: if ownUser(userId)
+        || isAdmin();
+
+      // New Google users can create their own profile.
+      allow create: if ownUser(userId)
+        && request.resource.data.uid == request.auth.uid
+        && (
+          request.resource.data.role == "pending"
+          || request.resource.data.role == "student"
+        )
+        && (
+          request.resource.data.status == "pending"
+          || request.resource.data.status == "active"
+        );
+
+      // User can update their own non-role/status fields.
+      allow update: if ownUser(userId)
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.status == resource.data.status;
+
+      // Admin controls role/status.
+      allow update, delete: if isAdmin();
+    }
+
+    // ==================================================
+    // NOTICES
+    // ==================================================
+
+    match /notices/{document} {
+      allow read: if resource.data.status == "published";
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ==================================================
+    // COURSES
+    // ==================================================
+
+    match /courses/{document} {
+      // Public website.
+      allow read: if true;
+
+      // Admin only.
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ==================================================
+    // EVENTS
+    // ==================================================
+
+    match /events/{document} {
+      // Public realtime listener.
+      allow read: if true;
+
+      // Admin only.
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ==================================================
+    // CONTACT QUERIES
+    // ==================================================
+
+    match /queries/{queryId} {
+      allow read: if isAdmin();
+
+      // Written through Next.js server/API using
+      // Firebase Admin SDK.
+      allow create, update, delete: if false;
+    }
+
+    // ==================================================
+    // ATTENDANCE
+    // ==================================================
+
+    match /attendance/{attendanceId} {
+
+      allow read: if isAdmin();
+
+      allow read: if isFaculty()
+        && resource.data.facultyId == request.auth.uid;
+
+      allow read: if isStudent()
+        && resource.data.studentUserId == request.auth.uid;
+
+      allow create, update, delete: if isAdmin();
+
+      allow create: if isFaculty()
+        && request.resource.data.facultyId == request.auth.uid
+        && request.resource.data.markedBy == request.auth.uid;
+
+      allow update: if isFaculty()
+        && resource.data.facultyId == request.auth.uid
+        && request.resource.data.facultyId == request.auth.uid;
+
+      allow delete: if false;
+    }
+
+    // ==================================================
+    // STUDENTS
+    // ==================================================
+
+    match /students/{studentId} {
+
+      allow read: if isAdmin()
+        || isFaculty()
+        || (
+          isStudent()
+          && resource.data.userId == request.auth.uid
+        );
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ==================================================
+    // FACULTY
+    // ==================================================
+
+    match /faculty/{facultyId} {
+
+      allow read: if isAdmin()
+        || (
+          isFaculty()
+          && resource.data.userId == request.auth.uid
+        );
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ==================================================
+    // SUBJECTS
+    // ==================================================
+
+    match /subjects/{subjectId} {
+      allow read: if isAdmin()
+        || isFaculty()
+        || isStudent();
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ==================================================
+    // TIMETABLE
+    // ==================================================
+
+    match /timetable/{document} {
+      allow read: if isAdmin()
+        || isFaculty()
+        || isStudent();
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ==================================================
+    // ASSIGNMENTS
+    // ==================================================
+
+    match /assignments/{assignmentId} {
+      allow read: if isAdmin()
+        || isFaculty()
+        || isStudent();
+
+      allow create, update, delete: if isAdmin()
+        || isFaculty();
+    }
+
+    // ==================================================
+    // SUBMISSIONS
+    // ==================================================
+
+    match /submissions/{submissionId} {
+
+      allow read: if isAdmin()
+        || isFaculty()
+        || (
+          isStudent()
+          && resource.data.studentUserId == request.auth.uid
+        );
+
+      allow create: if isStudent()
+        && request.resource.data.studentUserId == request.auth.uid;
+
+      allow update: if isAdmin()
+        || isFaculty()
+        || (
+          isStudent()
+          && resource.data.studentUserId == request.auth.uid
+        );
+
+      allow delete: if isAdmin();
+    }
+
+    // ==================================================
+    // EXAMS
+    // ==================================================
+
+    match /exams/{examId} {
+      allow read: if isAdmin()
+        || isFaculty()
+        || isStudent();
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ==================================================
+    // RESULTS
+    // ==================================================
+
+    match /results/{resultId} {
+
+      allow read: if isAdmin()
+        || isFaculty()
+        || (
+          isStudent()
+          && resource.data.studentUserId == request.auth.uid
+        );
+
+      allow create, update, delete: if isAdmin()
+        || isFaculty();
+    }
+
+    // ==================================================
+    // FEES
+    // ==================================================
+
+    match /fees/{feeId} {
+
+      allow read: if isAdmin()
+        || (
+          isStudent()
+          && resource.data.studentUserId == request.auth.uid
+        );
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ==================================================
+    // LEAVES
+    // ==================================================
+
+    match /leaves/{leaveId} {
+
+      allow read: if isAdmin()
+        || isFaculty()
+        || (
+          isStudent()
+          && resource.data.studentUserId == request.auth.uid
+        );
+
+      allow create: if isStudent()
+        && request.resource.data.studentUserId == request.auth.uid;
+
+      allow update: if isAdmin()
+        || isFaculty()
+        || (
+          isStudent()
+          && request.resource.data.studentUserId == request.auth.uid
+        );
+
+      allow delete: if isAdmin();
+    }
+
+    // ==================================================
+    // NOTIFICATIONS
+    // ==================================================
+
+    match /notifications/{notificationId} {
+
+      allow read: if isAdmin()
+        || (
+          signedIn()
+          && resource.data.userId == request.auth.uid
+        );
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ==================================================
+    // AUDIT LOGS
+    // ==================================================
+
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+
+      // Server-side only.
+      allow create, update, delete: if false;
     }
   }
 }
