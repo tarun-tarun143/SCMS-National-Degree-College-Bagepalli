@@ -1,10 +1,11 @@
+
 "use client";
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+
 import {
   ArrowRight,
-  Award,
   BriefcaseBusiness,
   CheckCircle2,
   Code2,
@@ -22,6 +23,29 @@ import {
 
 import PublicShell from "@/components/public/PublicShell";
 
+/* ============================================================
+   TYPES
+============================================================ */
+
+type CareerTone =
+  | "blue"
+  | "purple"
+  | "gold"
+  | "green"
+  | "cyan"
+  | "rose";
+
+type CareerPath = {
+  icon: typeof Code2;
+  title: string;
+  text: string;
+  tone: CareerTone;
+};
+
+/* ============================================================
+   DATA
+============================================================ */
+
 const bcaSkills = [
   "Programming fundamentals",
   "Object-oriented programming",
@@ -33,7 +57,7 @@ const bcaSkills = [
   "Project development",
 ];
 
-const careerPaths = [
+const careerPaths: CareerPath[] = [
   {
     icon: Code2,
     title: "Software Developer",
@@ -110,17 +134,21 @@ const stats = [
   },
 ];
 
+/* ============================================================
+   PAGE
+============================================================ */
+
 export default function AboutPage() {
   return (
     <PublicShell>
       <main className="premium-about">
-
         {/* =====================================================
             HERO
         ====================================================== */}
-        <section className="about-premium-hero">
 
+        <section className="about-premium-hero">
           <div className="about-hero-grid" />
+
           <div className="about-hero-glow glow-blue" />
           <div className="about-hero-glow glow-purple" />
           <div className="about-hero-glow glow-gold" />
@@ -132,10 +160,9 @@ export default function AboutPage() {
           <div className="about-particle particle-5" />
 
           <div className="container-page relative z-10 py-20 sm:py-24 lg:py-28">
-
             <div className="about-hero-layout">
-
               {/* HERO COPY */}
+
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -144,10 +171,11 @@ export default function AboutPage() {
                   ease: [0.16, 1, 0.3, 1],
                 }}
               >
-
                 <div className="about-premium-pill">
                   <span className="premium-live-dot" />
+
                   <Sparkles className="h-3.5 w-3.5" />
+
                   THE NATIONAL DEGREE COLLEGE • BAGEPALLI
                 </div>
 
@@ -157,7 +185,7 @@ export default function AboutPage() {
 
                 <h1 className="about-premium-title">
                   Learning with purpose.
-                  <span> Growing with technology.</span>
+                  <span>Growing with technology.</span>
                 </h1>
 
                 <p className="about-premium-description">
@@ -169,7 +197,6 @@ export default function AboutPage() {
                 </p>
 
                 <div className="about-hero-actions">
-
                   <Link
                     href="/courses/bca"
                     className="about-primary-button"
@@ -184,11 +211,9 @@ export default function AboutPage() {
                   >
                     Contact College
                   </Link>
-
                 </div>
 
                 <div className="about-trust-row">
-
                   <TrustBadge
                     icon={ShieldCheck}
                     text="Secure digital campus"
@@ -203,12 +228,11 @@ export default function AboutPage() {
                     icon={Sparkles}
                     text="Modern learning"
                   />
-
                 </div>
-
               </motion.div>
 
               {/* HERO VISUAL */}
+
               <motion.div
                 className="about-hero-visual"
                 initial={{
@@ -227,12 +251,10 @@ export default function AboutPage() {
                   ease: [0.16, 1, 0.3, 1],
                 }}
               >
-
                 <div className="hero-image-orbit orbit-a" />
                 <div className="hero-image-orbit orbit-b" />
 
                 <div className="about-main-image-card">
-
                   <div className="about-main-image">
                     <img
                       src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1100&q=85"
@@ -244,12 +266,13 @@ export default function AboutPage() {
 
                     <div className="image-floating-label">
                       <Code2 className="h-4 w-4" />
-                      <span>COMPUTING • PROGRAMMING • TECHNOLOGY</span>
+                      <span>
+                        COMPUTING • PROGRAMMING • TECHNOLOGY
+                      </span>
                     </div>
                   </div>
 
                   <div className="image-card-bottom">
-
                     <div>
                       <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
                         BCA Programme
@@ -263,9 +286,7 @@ export default function AboutPage() {
                     <div className="image-card-icon">
                       <Laptop className="h-5 w-5" />
                     </div>
-
                   </div>
-
                 </div>
 
                 <FloatingStat
@@ -281,11 +302,11 @@ export default function AboutPage() {
                   value="CAREER"
                   label="Future focused"
                 />
-
               </motion.div>
             </div>
 
             {/* HERO STATS */}
+
             <div className="about-stats-row">
               {stats.map((stat, index) => (
                 <motion.div
@@ -314,27 +335,24 @@ export default function AboutPage() {
                 </motion.div>
               ))}
             </div>
-
           </div>
         </section>
 
         {/* =====================================================
             INTRO
         ====================================================== */}
+
         <section className="section-space bg-white">
           <div className="container-page">
-
             <div className="about-intro-layout">
-
               <RevealBlock>
-
                 <div className="section-eyebrow">
                   OUR ACADEMIC APPROACH
                 </div>
 
                 <h2 className="about-section-title">
                   A modern academic environment built for
-                  <span> tomorrow's opportunities.</span>
+                  <span> tomorrow&apos;s opportunities.</span>
                 </h2>
 
                 <p className="about-section-text">
@@ -350,12 +368,10 @@ export default function AboutPage() {
                   programming, databases, web technologies,
                   software development and practical computing.
                 </p>
-
               </RevealBlock>
 
               <RevealBlock delay={0.12}>
                 <div className="about-intro-image-card">
-
                   <div className="intro-image-wrap">
                     <img
                       src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1000&q=85"
@@ -367,7 +383,6 @@ export default function AboutPage() {
                   </div>
 
                   <div className="intro-image-content">
-
                     <div className="intro-icon">
                       <Users className="h-5 w-5" />
                     </div>
@@ -381,11 +396,9 @@ export default function AboutPage() {
                         Learn together. Build together.
                       </div>
                     </div>
-
                   </div>
                 </div>
               </RevealBlock>
-
             </div>
           </div>
         </section>
@@ -393,14 +406,11 @@ export default function AboutPage() {
         {/* =====================================================
             BCA FEATURE SECTION
         ====================================================== */}
+
         <section className="about-tech-section">
-
           <div className="container-page">
-
             <RevealBlock>
-
               <div className="max-w-3xl">
-
                 <div className="section-eyebrow light">
                   WHY BCA
                 </div>
@@ -415,13 +425,10 @@ export default function AboutPage() {
                   databases and computer systems are designed and
                   built.
                 </p>
-
               </div>
-
             </RevealBlock>
 
             <div className="tech-feature-grid">
-
               <TechFeature
                 icon={Code2}
                 title="Programming"
@@ -449,7 +456,6 @@ export default function AboutPage() {
                 text="Understand how software is planned, developed, tested and maintained."
                 tone="green"
               />
-
             </div>
           </div>
         </section>
@@ -457,14 +463,11 @@ export default function AboutPage() {
         {/* =====================================================
             SKILLS
         ====================================================== */}
+
         <section className="section-space bg-white">
-
           <div className="container-page">
-
             <div className="skills-layout">
-
               <RevealBlock>
-
                 <div className="section-eyebrow">
                   SKILLS YOU CAN DEVELOP
                 </div>
@@ -491,12 +494,10 @@ export default function AboutPage() {
                     </div>
                   ))}
                 </div>
-
               </RevealBlock>
 
               <RevealBlock delay={0.14}>
                 <div className="skills-image-card">
-
                   <div className="skills-image">
                     <img
                       src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1100&q=85"
@@ -522,12 +523,9 @@ export default function AboutPage() {
                         <div className="code-line medium" />
                       </div>
                     </div>
-
                   </div>
-
                 </div>
               </RevealBlock>
-
             </div>
           </div>
         </section>
@@ -535,14 +533,11 @@ export default function AboutPage() {
         {/* =====================================================
             LEARNING JOURNEY
         ====================================================== */}
+
         <section className="about-journey-section">
-
           <div className="container-page">
-
             <RevealBlock>
-
               <div className="text-center">
-
                 <div className="section-eyebrow">
                   LEARNING JOURNEY
                 </div>
@@ -556,43 +551,32 @@ export default function AboutPage() {
                   move from computing basics toward practical
                   development and career readiness.
                 </p>
-
               </div>
-
             </RevealBlock>
 
             <div className="journey-grid">
-
-              {learningStages.map(
-                (stage, index) => (
-                  <RevealBlock
-                    key={stage.number}
-                    delay={index * 0.08}
-                  >
-                    <div className="journey-card">
-
-                      <div className="journey-number">
-                        {stage.number}
-                      </div>
-
-                      <div className="journey-content">
-
-                        <div className="text-[10px] font-black uppercase tracking-[0.15em] text-[var(--blue)]">
-                          Stage {stage.number}
-                        </div>
-
-                        <h3>{stage.title}</h3>
-
-                        <p>
-                          {stage.text}
-                        </p>
-
-                      </div>
+              {learningStages.map((stage, index) => (
+                <RevealBlock
+                  key={stage.number}
+                  delay={index * 0.08}
+                >
+                  <div className="journey-card">
+                    <div className="journey-number">
+                      {stage.number}
                     </div>
-                  </RevealBlock>
-                )
-              )}
 
+                    <div className="journey-content">
+                      <div className="text-[10px] font-black uppercase tracking-[0.15em] text-[var(--blue)]">
+                        Stage {stage.number}
+                      </div>
+
+                      <h3>{stage.title}</h3>
+
+                      <p>{stage.text}</p>
+                    </div>
+                  </div>
+                </RevealBlock>
+              ))}
             </div>
           </div>
         </section>
@@ -600,14 +584,11 @@ export default function AboutPage() {
         {/* =====================================================
             CAREER OPPORTUNITIES
         ====================================================== */}
+
         <section className="section-space bg-white">
-
           <div className="container-page">
-
             <RevealBlock>
-
               <div className="max-w-3xl">
-
                 <div className="section-eyebrow">
                   CAREER PATHWAYS
                 </div>
@@ -617,37 +598,30 @@ export default function AboutPage() {
                 </h2>
 
                 <p className="about-section-text">
-                  Depending on your skills, projects,
-                  experience and further studies, BCA can open
-                  several technology-oriented career directions.
+                  Depending on your skills, projects, experience
+                  and further studies, BCA can open several
+                  technology-oriented career directions.
                 </p>
-
               </div>
-
             </RevealBlock>
 
             <div className="career-grid">
-
-              {careerPaths.map(
-                (career, index) => (
-                  <RevealBlock
-                    key={career.title}
-                    delay={index * 0.06}
-                  >
-                    <CareerCard
-                      icon={career.icon}
-                      title={career.title}
-                      text={career.text}
-                      tone={career.tone}
-                    />
-                  </RevealBlock>
-                )
-              )}
-
+              {careerPaths.map((career, index) => (
+                <RevealBlock
+                  key={career.title}
+                  delay={index * 0.06}
+                >
+                  <CareerCard
+                    icon={career.icon}
+                    title={career.title}
+                    text={career.text}
+                    tone={career.tone}
+                  />
+                </RevealBlock>
+              ))}
             </div>
 
             <div className="career-note">
-
               <div className="career-note-icon">
                 <BriefcaseBusiness className="h-5 w-5" />
               </div>
@@ -664,23 +638,18 @@ export default function AboutPage() {
                   your opportunities.
                 </p>
               </div>
-
             </div>
-
           </div>
         </section>
 
         {/* =====================================================
             SECOND VISUAL
         ====================================================== */}
+
         <section className="about-visual-section">
-
           <div className="container-page">
-
             <div className="big-visual-card">
-
               <div className="big-visual-image">
-
                 <img
                   src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1600&q=85"
                   alt="Students learning and collaborating with technology"
@@ -690,7 +659,6 @@ export default function AboutPage() {
                 <div className="big-visual-overlay" />
 
                 <div className="big-visual-content">
-
                   <div className="section-eyebrow light">
                     THE DIGITAL FUTURE
                   </div>
@@ -714,32 +682,24 @@ export default function AboutPage() {
                     Explore BCA Programme
                     <ArrowRight className="h-4 w-4" />
                   </Link>
-
                 </div>
-
               </div>
-
             </div>
-
           </div>
         </section>
 
         {/* =====================================================
             FINAL CTA
         ====================================================== */}
-        <section className="about-final-cta">
 
+        <section className="about-final-cta">
           <div className="cta-orb orb-one" />
           <div className="cta-orb orb-two" />
 
           <div className="container-page relative z-10">
-
             <RevealBlock>
-
               <div className="about-cta-inner">
-
                 <div>
-
                   <div className="section-eyebrow light">
                     DISCOVER MORE
                   </div>
@@ -755,11 +715,9 @@ export default function AboutPage() {
                     Explore the BCA programme, discover academic
                     information and connect with the college.
                   </p>
-
                 </div>
 
                 <div className="about-cta-actions">
-
                   <Link
                     href="/courses/bca"
                     className="about-primary-button"
@@ -774,16 +732,11 @@ export default function AboutPage() {
                   >
                     Contact College
                   </Link>
-
                 </div>
-
               </div>
-
             </RevealBlock>
-
           </div>
         </section>
-
       </main>
 
       <style jsx global>{`
@@ -803,12 +756,12 @@ export default function AboutPage() {
           background:
             radial-gradient(
               circle at 15% 20%,
-              rgba(59, 130, 246, 0.20),
+              rgba(59, 130, 246, 0.2),
               transparent 25%
             ),
             radial-gradient(
               circle at 82% 10%,
-              rgba(139, 92, 246, 0.20),
+              rgba(139, 92, 246, 0.2),
               transparent 28%
             ),
             linear-gradient(
@@ -1031,7 +984,7 @@ export default function AboutPage() {
           font-weight: 900;
           text-decoration: none;
           box-shadow:
-            0 12px 28px rgba(0, 0, 0, 0.10);
+            0 12px 28px rgba(0, 0, 0, 0.1);
           transition:
             transform 0.2s ease,
             box-shadow 0.2s ease;
@@ -1268,7 +1221,7 @@ export default function AboutPage() {
 
         .about-stat-item + .about-stat-item {
           padding-left: 18px;
-          border-left: 1px solid rgba(255, 255, 255, 0.10);
+          border-left: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .about-stat-number {
@@ -1353,6 +1306,7 @@ export default function AboutPage() {
         .intro-image-wrap {
           height: 275px;
           overflow: hidden;
+          position: relative;
         }
 
         .intro-image-wrap img {
@@ -1376,10 +1330,6 @@ export default function AboutPage() {
               rgba(7, 27, 64, 0.65),
               transparent
             );
-        }
-
-        .intro-image-wrap {
-          position: relative;
         }
 
         .intro-image-content {
@@ -1639,7 +1589,7 @@ export default function AboutPage() {
             linear-gradient(
               90deg,
               rgba(96, 165, 250, 0.85),
-              rgba(196, 181, 253, 0.60)
+              rgba(196, 181, 253, 0.6)
             );
           animation: codePulse 3s ease-in-out infinite;
         }
@@ -1916,8 +1866,8 @@ export default function AboutPage() {
             linear-gradient(
               90deg,
               rgba(7, 27, 64, 0.92) 0%,
-              rgba(7, 27, 64, 0.70) 48%,
-              rgba(7, 27, 64, 0.20) 100%
+              rgba(7, 27, 64, 0.7) 48%,
+              rgba(7, 27, 64, 0.2) 100%
             );
         }
 
@@ -1961,7 +1911,7 @@ export default function AboutPage() {
           background:
             radial-gradient(
               circle at 85% 15%,
-              rgba(59, 130, 246, 0.20),
+              rgba(59, 130, 246, 0.2),
               transparent 30%
             ),
             radial-gradient(
@@ -1979,7 +1929,7 @@ export default function AboutPage() {
         .cta-orb {
           position: absolute;
           border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.10);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           pointer-events: none;
         }
 
@@ -2116,7 +2066,7 @@ export default function AboutPage() {
           50% {
             transform:
               translate(-15px, -15px)
-              scale(1.10);
+              scale(1.1);
           }
         }
 
@@ -2376,9 +2326,9 @@ export default function AboutPage() {
   );
 }
 
-/* =========================================================
+/* ============================================================
    REUSABLE COMPONENTS
-========================================================= */
+============================================================ */
 
 function RevealBlock({
   children,
@@ -2492,13 +2442,7 @@ function CareerCard({
   icon: typeof Code2;
   title: string;
   text: string;
-  tone:
-    | "blue"
-    | "purple"
-    | "gold"
-    | "green"
-    | "cyan"
-    | "rose";
+  tone: CareerTone;
 }) {
   return (
     <div className={`career-card career-${tone}`}>

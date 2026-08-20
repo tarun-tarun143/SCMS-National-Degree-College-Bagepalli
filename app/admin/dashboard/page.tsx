@@ -1,6 +1,12 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  collection,
+  getCountFromServer,
+} from "firebase/firestore";
+
 import {
   Users,
   GraduationCap,
@@ -10,17 +16,12 @@ import {
   Bell,
   BarChart3,
   RefreshCw,
+  Database,
 } from "lucide-react";
 
 import PortalShell from "@/components/portal/PortalShell";
 import PageHeading from "@/components/portal/PageHeading";
-import StatCard from "@/components/ui/StatCard";
 import { firestoreDb } from "@/lib/firebase/client";
-
-import {
-  collection,
-  getCountFromServer,
-} from "firebase/firestore";
 
 export default function AdminDashboard() {
   const [studentCount, setStudentCount] = useState(0);
@@ -33,65 +34,65 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  async function loadCounts() {
-    try {
-      setLoading(true);
-      setError("");
+async function loadCounts() {
+  try {
+    setLoading(true);
+    setError("");
 
-      const [
-        studentsSnapshot,
-        facultySnapshot,
-        attendanceSnapshot,
-        feesSnapshot,
-        examsSnapshot,
-        noticesSnapshot,
-      ] = await Promise.all([
-        getCountFromServer(
-          collection(firestoreDb, "students")
-        ),
+    // Create a local constant so TypeScript knows
+    // this is definitely a Firestore instance.
+    const db = firestoreDb;
 
-        getCountFromServer(
-          collection(firestoreDb, "faculty")
-        ),
-
-        getCountFromServer(
-          collection(firestoreDb, "attendance")
-        ),
-
-        getCountFromServer(
-          collection(firestoreDb, "fees")
-        ),
-
-        getCountFromServer(
-          collection(firestoreDb, "exams")
-        ),
-
-        getCountFromServer(
-          collection(firestoreDb, "notices")
-        ),
-      ]);
-
-      setStudentCount(studentsSnapshot.data().count);
-      setFacultyCount(facultySnapshot.data().count);
-      setAttendanceCount(attendanceSnapshot.data().count);
-      setFeeCount(feesSnapshot.data().count);
-      setExamCount(examsSnapshot.data().count);
-      setNoticeCount(noticesSnapshot.data().count);
-    } catch (err) {
-      console.error("Dashboard count error:", err);
-
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unable to load dashboard counts."
+    if (db === null) {
+      throw new Error(
+        "Firestore is not initialized. Check your Firebase configuration."
       );
-    } finally {
-      setLoading(false);
     }
+
+    const studentsRef = collection(db, "students");
+    const facultyRef = collection(db, "faculty");
+    const attendanceRef = collection(db, "attendance");
+    const feesRef = collection(db, "fees");
+    const examsRef = collection(db, "exams");
+    const noticesRef = collection(db, "notices");
+
+    const [
+      studentsSnapshot,
+      facultySnapshot,
+      attendanceSnapshot,
+      feesSnapshot,
+      examsSnapshot,
+      noticesSnapshot,
+    ] = await Promise.all([
+      getCountFromServer(studentsRef),
+      getCountFromServer(facultyRef),
+      getCountFromServer(attendanceRef),
+      getCountFromServer(feesRef),
+      getCountFromServer(examsRef),
+      getCountFromServer(noticesRef),
+    ]);
+
+    setStudentCount(studentsSnapshot.data().count);
+    setFacultyCount(facultySnapshot.data().count);
+    setAttendanceCount(attendanceSnapshot.data().count);
+    setFeeCount(feesSnapshot.data().count);
+    setExamCount(examsSnapshot.data().count);
+    setNoticeCount(noticesSnapshot.data().count);
+  } catch (err) {
+    console.error("Admin dashboard count error:", err);
+
+    setError(
+      err instanceof Error
+        ? err.message
+        : "Unable to load dashboard counts."
+    );
+  } finally {
+    setLoading(false);
   }
+}
 
   useEffect(() => {
-    loadCounts();
+    void loadCounts();
   }, []);
 
   return (
@@ -99,277 +100,430 @@ export default function AdminDashboard() {
       role="admin"
       title="Admin Dashboard"
     >
-      <PageHeading
-        eyebrow="Central administration"
-        title="Institutional control center"
-        description="Manage your college and monitor important institutional records."
-      />
+      <main className="space-y-8 pb-10">
 
-      {/* Error */}
-      {error && (
-        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
-          <div className="flex items-center justify-between gap-4">
-            <span>{error}</span>
+        {/* =====================================================
+            HEADER
+        ====================================================== */}
 
-            <button
-              onClick={loadCounts}
-              className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Retry
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Main statistics */}
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-
-        <AnimatedStatCard
-          label="Total Students"
-          value={studentCount}
-          icon={Users}
-          description="Registered students"
-          gradient="from-blue-600 to-cyan-500"
-          loading={loading}
+        <PageHeading
+          eyebrow="Central administration"
+          title="Institutional control center"
+          description="Manage students, faculty and college operations from one centralized dashboard."
         />
 
-        <AnimatedStatCard
-          label="Total Faculty"
-          value={facultyCount}
-          icon={GraduationCap}
-          description="Registered faculty"
-          gradient="from-violet-600 to-purple-500"
-          loading={loading}
-        />
+        {/* =====================================================
+            ERROR
+        ====================================================== */}
 
-        <AnimatedStatCard
-          label="Attendance"
-          value={attendanceCount}
-          icon={ClipboardCheck}
-          description="Attendance records"
-          gradient="from-emerald-600 to-teal-500"
-          loading={loading}
-        />
-
-        <AnimatedStatCard
-          label="Fee Records"
-          value={feeCount}
-          icon={CreditCard}
-          description="Recorded transactions"
-          gradient="from-orange-500 to-amber-500"
-          loading={loading}
-        />
-
-        <AnimatedStatCard
-          label="Exams"
-          value={examCount}
-          icon={CalendarDays}
-          description="Configured exams"
-          gradient="from-pink-600 to-rose-500"
-          loading={loading}
-        />
-
-        <AnimatedStatCard
-          label="Notices"
-          value={noticeCount}
-          icon={Bell}
-          description="Published notices"
-          gradient="from-indigo-600 to-blue-500"
-          loading={loading}
-        />
-
-      </div>
-
-      {/* Dashboard information */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-
-        <div className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition duration-500 hover:-translate-y-1 hover:shadow-2xl">
-          
-          <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-blue-500/10 blur-3xl transition duration-500 group-hover:bg-blue-500/20" />
-
-          <div className="relative">
-
-            <div className="flex items-center justify-between">
+        {error && (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-600">
-                  Institution
+                <p className="text-sm font-black text-red-800">
+                  Dashboard data could not be loaded
                 </p>
 
-                <h2 className="mt-2 text-2xl font-black text-[var(--navy)]">
-                  College Overview
-                </h2>
+                <p className="mt-1 text-xs leading-5 text-red-600">
+                  {error}
+                </p>
               </div>
 
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-blue-50 text-blue-600">
-                <BarChart3 className="h-6 w-6" />
-              </div>
+              <button
+                type="button"
+                onClick={() => void loadCounts()}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-red-700"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Retry
+              </button>
             </div>
+          </div>
+        )}
 
-            <div className="mt-6 grid grid-cols-2 gap-4">
+        {/* =====================================================
+            TOTAL STUDENTS + FACULTY
+        ====================================================== */}
 
-              <MiniStat
-                label="Students"
-                value={studentCount}
-              />
+        <section className="grid gap-6 md:grid-cols-2">
 
-              <MiniStat
-                label="Faculty"
-                value={facultyCount}
-              />
+          {/* Students */}
 
-              <MiniStat
-                label="Attendance"
-                value={attendanceCount}
-              />
+          <TotalCard
+            title="Total Students"
+            value={studentCount}
+            description="Registered student records"
+            icon={Users}
+            gradient="from-blue-600 via-indigo-600 to-cyan-500"
+            loading={loading}
+          />
 
-              <MiniStat
-                label="Exams"
-                value={examCount}
-              />
+          {/* Faculty */}
 
+          <TotalCard
+            title="Total Faculty"
+            value={facultyCount}
+            description="Registered faculty records"
+            icon={GraduationCap}
+            gradient="from-emerald-600 via-teal-600 to-cyan-500"
+            loading={loading}
+          />
+
+        </section>
+
+        {/* =====================================================
+            OTHER COUNTS
+        ====================================================== */}
+
+        <section>
+          <div className="mb-5 flex items-center gap-3">
+            <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-cyan-400" />
+
+            <div>
+              <h2 className="text-xl font-black text-[var(--navy)]">
+                College Overview
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Current administrative records
+              </p>
             </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+            <OverviewCard
+              label="Attendance Records"
+              value={attendanceCount}
+              icon={ClipboardCheck}
+              loading={loading}
+              gradient="from-emerald-500 to-teal-500"
+            />
+
+            <OverviewCard
+              label="Fee Records"
+              value={feeCount}
+              icon={CreditCard}
+              loading={loading}
+              gradient="from-orange-500 to-amber-500"
+            />
+
+            <OverviewCard
+              label="Exams"
+              value={examCount}
+              icon={CalendarDays}
+              loading={loading}
+              gradient="from-purple-500 to-violet-500"
+            />
+
+            <OverviewCard
+              label="Published Notices"
+              value={noticeCount}
+              icon={Bell}
+              loading={loading}
+              gradient="from-pink-500 to-rose-500"
+            />
 
           </div>
-        </div>
+        </section>
 
-        {/* Admin actions */}
-        <div className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition duration-500 hover:-translate-y-1 hover:shadow-2xl">
+        {/* =====================================================
+            SYSTEM STATUS
+        ====================================================== */}
 
-          <div className="absolute -bottom-20 -right-20 h-48 w-48 rounded-full bg-purple-500/10 blur-3xl" />
+        <section className="grid gap-6 lg:grid-cols-2">
 
-          <div className="relative">
+          {/* System health */}
 
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-purple-600">
-              Administration
-            </p>
+          <div className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition duration-500 hover:-translate-y-1 hover:shadow-xl">
 
-            <h2 className="mt-2 text-2xl font-black text-[var(--navy)]">
-              Quick actions
-            </h2>
+            <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full bg-blue-500/10 blur-3xl transition duration-500 group-hover:scale-125" />
 
-            <div className="mt-6 space-y-3">
+            <div className="relative">
 
-              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 transition hover:-translate-y-1 hover:shadow-md">
-                <p className="font-bold text-blue-900">
-                  Manage Students
-                </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600">
+                    System
+                  </p>
 
-                <p className="mt-1 text-sm text-blue-700">
-                  Add, edit and manage student records.
-                </p>
+                  <h3 className="mt-1 text-xl font-black text-[var(--navy)]">
+                    Database Status
+                  </h3>
+                </div>
+
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-blue-50 text-blue-600">
+                  <BarChart3 className="h-5 w-5" />
+                </div>
               </div>
 
-              <div className="rounded-2xl border border-purple-100 bg-purple-50 p-4 transition hover:-translate-y-1 hover:shadow-md">
-                <p className="font-bold text-purple-900">
-                  Manage Faculty
-                </p>
+              <div className="mt-6 space-y-3">
 
-                <p className="mt-1 text-sm text-purple-700">
-                  Manage faculty members and academic information.
-                </p>
+                <StatusRow
+                  label="Students database"
+                  loading={loading}
+                  count={studentCount}
+                />
+
+                <StatusRow
+                  label="Faculty database"
+                  loading={loading}
+                  count={facultyCount}
+                />
+
+                <StatusRow
+                  label="Attendance database"
+                  loading={loading}
+                  count={attendanceCount}
+                />
+
+                <StatusRow
+                  label="Notices database"
+                  loading={loading}
+                  count={noticeCount}
+                />
+
               </div>
-
-              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 transition hover:-translate-y-1 hover:shadow-md">
-                <p className="font-bold text-emerald-900">
-                  Monitor Queries
-                </p>
-
-                <p className="mt-1 text-sm text-emerald-700">
-                  Review enquiries submitted through the website.
-                </p>
-              </div>
-
             </div>
-
           </div>
-        </div>
 
-      </div>
+          {/* Quick information */}
+
+          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 p-6 text-white shadow-xl">
+
+            <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl" />
+
+            <div className="relative">
+
+              <div className="flex items-center gap-2">
+                <Database className="h-5 w-5 text-cyan-300" />
+
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-200">
+                  Firestore
+                </p>
+              </div>
+
+              <h3 className="mt-3 text-2xl font-black">
+                Administration Summary
+              </h3>
+
+              <div className="mt-6 space-y-3">
+
+                <SummaryRow
+                  label="Students"
+                  value={studentCount}
+                />
+
+                <SummaryRow
+                  label="Faculty"
+                  value={facultyCount}
+                />
+
+                <SummaryRow
+                  label="Attendance"
+                  value={attendanceCount}
+                />
+
+                <SummaryRow
+                  label="Fee records"
+                  value={feeCount}
+                />
+
+                <SummaryRow
+                  label="Exams"
+                  value={examCount}
+                />
+
+                <SummaryRow
+                  label="Notices"
+                  value={noticeCount}
+                />
+
+              </div>
+            </div>
+          </div>
+
+        </section>
+      </main>
     </PortalShell>
   );
 }
 
-/* =========================================================
-   ANIMATED STAT CARD
-========================================================= */
+/* ============================================================
+   TOTAL CARD
+============================================================ */
 
-function AnimatedStatCard({
-  label,
+function TotalCard({
+  title,
   value,
-  icon: Icon,
   description,
+  icon: Icon,
   gradient,
   loading,
 }: {
-  label: string;
+  title: string;
   value: number;
-  icon: React.ElementType;
   description: string;
+  icon: React.ElementType;
   gradient: string;
   loading: boolean;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+    <div
+      className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br ${gradient} p-6 text-white shadow-xl transition duration-500 hover:-translate-y-2 hover:shadow-2xl`}
+    >
+      <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-white/10 blur-3xl transition duration-700 group-hover:scale-150" />
 
-      {/* Animated background */}
-      <div
-        className={`absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gradient-to-br ${gradient} opacity-10 blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-20`}
-      />
+      <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-white/5 blur-3xl" />
 
       <div className="relative">
 
         <div className="flex items-start justify-between">
 
-          <div
-            className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${gradient} text-white shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:rotate-3`}
-          >
+          <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white/15 shadow-lg backdrop-blur-md transition duration-500 group-hover:scale-110 group-hover:rotate-3">
             <Icon className="h-7 w-7" />
           </div>
 
-          <span className="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-600">
+          <div className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider backdrop-blur-md">
             Total
-          </span>
+          </div>
 
         </div>
 
-        <p className="mt-5 text-sm font-bold text-slate-500">
-          {label}
+        <p className="mt-6 text-xs font-black uppercase tracking-[0.18em] text-white/70">
+          {title}
         </p>
 
-        <div className="mt-1 flex items-center gap-2">
+        {loading ? (
+          <div className="mt-2 h-14 w-28 animate-pulse rounded-xl bg-white/20" />
+        ) : (
+          <p className="mt-1 text-5xl font-black tracking-tight">
+            {value.toLocaleString()}
+          </p>
+        )}
 
-          {loading ? (
-            <div className="h-10 w-24 animate-pulse rounded-lg bg-slate-200" />
-          ) : (
-            <span className="text-4xl font-black tracking-tight text-[var(--navy)]">
-              {value.toLocaleString()}
-            </span>
-          )}
-
-        </div>
-
-        <p className="mt-2 text-xs font-medium text-slate-400">
+        <p className="mt-3 text-sm text-white/75">
           {description}
         </p>
 
-        {/* Bottom animated line */}
-        <div className="mt-5 h-1 overflow-hidden rounded-full bg-slate-100">
-          <div
-            className={`h-full w-1/2 rounded-full bg-gradient-to-r ${gradient} transition-all duration-700 group-hover:w-full`}
-          />
+        <div className="mt-6 h-1 overflow-hidden rounded-full bg-white/10">
+          <div className="h-full w-2/5 rounded-full bg-white/50 transition-all duration-700 group-hover:w-full" />
         </div>
-
       </div>
     </div>
   );
 }
 
-/* =========================================================
-   MINI STAT
-========================================================= */
+/* ============================================================
+   OVERVIEW CARD
+============================================================ */
 
-function MiniStat({
+function OverviewCard({
+  label,
+  value,
+  icon: Icon,
+  loading,
+  gradient,
+}: {
+  label: string;
+  value: number;
+  icon: React.ElementType;
+  loading: boolean;
+  gradient: string;
+}) {
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+
+      <div
+        className={`absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${gradient} opacity-10 blur-2xl transition duration-500 group-hover:scale-150`}
+      />
+
+      <div className="relative">
+
+        <div
+          className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ${gradient} text-white shadow-lg transition duration-300 group-hover:scale-110`}
+        >
+          <Icon className="h-5 w-5" />
+        </div>
+
+        <p className="mt-4 text-xs font-bold uppercase tracking-wider text-slate-400">
+          {label}
+        </p>
+
+        {loading ? (
+          <div className="mt-2 h-8 w-20 animate-pulse rounded-lg bg-slate-100" />
+        ) : (
+          <p className="mt-1 text-3xl font-black text-[var(--navy)]">
+            {value.toLocaleString()}
+          </p>
+        )}
+
+        <p className="mt-1 text-xs text-slate-400">
+          Total records
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   STATUS ROW
+============================================================ */
+
+function StatusRow({
+  label,
+  loading,
+  count,
+}: {
+  label: string;
+  loading: boolean;
+  count: number;
+}) {
+  return (
+    <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-4">
+
+      <div className="flex items-center gap-3">
+
+        <span
+          className={`h-2.5 w-2.5 rounded-full ${
+            loading
+              ? "bg-amber-400 animate-pulse"
+              : "bg-emerald-500"
+          }`}
+        />
+
+        <span className="text-sm font-bold text-slate-700">
+          {label}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2">
+
+        {!loading && (
+          <span className="text-xs font-bold text-slate-400">
+            {count.toLocaleString()}
+          </span>
+        )}
+
+        <span
+          className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase ${
+            loading
+              ? "bg-amber-50 text-amber-600"
+              : "bg-emerald-50 text-emerald-600"
+          }`}
+        >
+          {loading ? "Loading" : "Ready"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   SUMMARY ROW
+============================================================ */
+
+function SummaryRow({
   label,
   value,
 }: {
@@ -377,16 +531,15 @@ function MiniStat({
   value: number;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 transition duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-md">
-
-      <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+    <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition hover:bg-white/10">
+      <span className="text-sm font-semibold text-blue-100">
         {label}
-      </p>
+      </span>
 
-      <p className="mt-2 text-2xl font-black text-[var(--navy)]">
+      <span className="text-lg font-black text-white">
         {value.toLocaleString()}
-      </p>
-
+      </span>
     </div>
   );
 }
+

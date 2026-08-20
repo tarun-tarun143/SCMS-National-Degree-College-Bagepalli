@@ -18,13 +18,15 @@ import {
   Rocket,
   ShieldCheck,
   Sparkles,
-  Target,
-  Users,
 } from "lucide-react";
 
 import PublicShell from "@/components/public/PublicShell";
 import { firestoreDb } from "@/lib/firebase/client";
 import { useLiveCollection } from "@/hooks/useLiveCollection";
+
+/* =========================================================
+   TYPES
+========================================================= */
 
 type Course = {
   id: string;
@@ -35,7 +37,39 @@ type Course = {
   status?: string;
 };
 
-const learningAreas = [
+type LearningTone =
+  | "blue"
+  | "purple"
+  | "gold"
+  | "green";
+
+type LearningAreaItem = {
+  icon: typeof Code2;
+  title: string;
+  description: string;
+  tone: LearningTone;
+};
+
+type CareerTone =
+  | "blue"
+  | "purple"
+  | "gold"
+  | "green"
+  | "cyan"
+  | "rose";
+
+type CareerPathItem = {
+  icon: typeof Code2;
+  title: string;
+  description: string;
+  tone: CareerTone;
+};
+
+/* =========================================================
+   LEARNING AREAS
+========================================================= */
+
+const learningAreas: LearningAreaItem[] = [
   {
     icon: Code2,
     title: "Programming",
@@ -66,7 +100,11 @@ const learningAreas = [
   },
 ];
 
-const careerPaths = [
+/* =========================================================
+   CAREER PATHS
+========================================================= */
+
+const careerPaths: CareerPathItem[] = [
   {
     icon: Code2,
     title: "Software Developer",
@@ -111,6 +149,10 @@ const careerPaths = [
   },
 ];
 
+/* =========================================================
+   SKILLS
+========================================================= */
+
 const skillGroups = [
   "Programming and problem solving",
   "Database and SQL concepts",
@@ -121,6 +163,10 @@ const skillGroups = [
   "Project development",
   "Professional communication",
 ];
+
+/* =========================================================
+   TEXTBOOK IMAGES
+========================================================= */
 
 const textbookImages = [
   {
@@ -143,6 +189,10 @@ const textbookImages = [
   },
 ];
 
+/* =========================================================
+   PAGE
+========================================================= */
+
 export default function CoursesPage() {
   const courses = useLiveCollection<Course>(
     firestoreDb,
@@ -163,9 +213,10 @@ export default function CoursesPage() {
         {/* =====================================================
             HERO
         ====================================================== */}
-        <section className="courses-premium-hero">
 
+        <section className="courses-premium-hero">
           <div className="courses-grid-bg" />
+
           <div className="courses-glow courses-glow-blue" />
           <div className="courses-glow courses-glow-purple" />
           <div className="courses-glow courses-glow-gold" />
@@ -177,8 +228,9 @@ export default function CoursesPage() {
           <div className="courses-particle cp-5" />
 
           <div className="container-page relative z-10 py-20 sm:py-24 lg:py-28">
-
             <div className="courses-hero-layout">
+
+              {/* HERO COPY */}
 
               <motion.div
                 initial={{ opacity: 0, y: 28 }}
@@ -188,10 +240,11 @@ export default function CoursesPage() {
                   ease: [0.16, 1, 0.3, 1],
                 }}
               >
-
                 <div className="courses-premium-pill">
                   <span className="courses-live-dot" />
+
                   <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" />
+
                   Academic Programmes
                 </div>
 
@@ -211,7 +264,6 @@ export default function CoursesPage() {
                 </p>
 
                 <div className="courses-hero-actions">
-
                   <Link
                     href="/courses/bca"
                     className="courses-primary-button"
@@ -226,11 +278,9 @@ export default function CoursesPage() {
                   >
                     Enquire Now
                   </Link>
-
                 </div>
 
                 <div className="courses-trust-row">
-
                   <TrustItem
                     icon={GraduationCap}
                     text="Academic focused"
@@ -245,11 +295,11 @@ export default function CoursesPage() {
                     icon={Rocket}
                     text="Career minded"
                   />
-
                 </div>
               </motion.div>
 
               {/* HERO IMAGE */}
+
               <motion.div
                 className="courses-hero-visual"
                 initial={{
@@ -268,12 +318,10 @@ export default function CoursesPage() {
                   ease: [0.16, 1, 0.3, 1],
                 }}
               >
-
                 <div className="courses-orbit orbit-1" />
                 <div className="courses-orbit orbit-2" />
 
                 <div className="courses-hero-image-card">
-
                   <div className="courses-hero-image">
                     <img
                       src="https://cmr.edu.in/blog/wp-content/uploads/2024/11/What-are-the-most-recent-technologies-being-explored-in-the-BCA-program_.webp"
@@ -284,12 +332,13 @@ export default function CoursesPage() {
 
                     <div className="courses-image-badge">
                       <Code2 className="h-4 w-4" />
-                      <span>COMPUTING • CODING • PRACTICAL LEARNING</span>
+                      <span>
+                        COMPUTING • CODING • PRACTICAL LEARNING
+                      </span>
                     </div>
                   </div>
 
                   <div className="courses-image-footer">
-
                     <div>
                       <div className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
                         BACHELOR OF COMPUTER APPLICATIONS
@@ -303,7 +352,6 @@ export default function CoursesPage() {
                     <div className="courses-image-icon">
                       <Laptop className="h-5 w-5" />
                     </div>
-
                   </div>
                 </div>
 
@@ -320,14 +368,12 @@ export default function CoursesPage() {
                   value="CAREER"
                   label="Technology pathways"
                 />
-
               </motion.div>
-
             </div>
 
             {/* HERO METRICS */}
-            <div className="courses-metrics">
 
+            <div className="courses-metrics">
               <Metric
                 number="6"
                 label="Academic semesters"
@@ -342,23 +388,19 @@ export default function CoursesPage() {
                 number="∞"
                 label="Opportunities to build"
               />
-
             </div>
-
           </div>
         </section>
 
         {/* =====================================================
             PROGRAMME INTRO
         ====================================================== */}
+
         <section className="section-space bg-white">
-
           <div className="container-page">
-
             <div className="programme-intro-grid">
 
               <Reveal>
-
                 <div className="section-eyebrow">
                   BCA PROGRAMME
                 </div>
@@ -383,7 +425,6 @@ export default function CoursesPage() {
                 </p>
 
                 <div className="programme-actions">
-
                   <Link
                     href="/courses/bca"
                     className="inline-flex items-center gap-2 text-sm font-extrabold text-[var(--blue)]"
@@ -391,31 +432,28 @@ export default function CoursesPage() {
                     View detailed BCA programme
                     <ArrowRight className="h-4 w-4" />
                   </Link>
-
                 </div>
-
               </Reveal>
 
               <Reveal delay={0.12}>
-
                 <div className="programme-side-card">
-
                   <div className="programme-side-icon">
                     <GraduationCap className="h-6 w-6" />
                   </div>
 
-                  <div className="text-[10px] font-black uppercase tracking-[0.16em] text-blue-200">
+                  <div className="mt-4 text-[10px] font-black uppercase tracking-[0.16em] text-blue-200">
                     STUDENT JOURNEY
                   </div>
 
                   <h3>
                     Learn.
+                    <br />
                     Practice.
+                    <br />
                     Build.
                   </h3>
 
                   <div className="programme-side-points">
-
                     <SidePoint
                       number="01"
                       title="Learn"
@@ -433,13 +471,9 @@ export default function CoursesPage() {
                       title="Build"
                       text="Create projects and solve problems."
                     />
-
                   </div>
-
                 </div>
-
               </Reveal>
-
             </div>
           </div>
         </section>
@@ -447,14 +481,11 @@ export default function CoursesPage() {
         {/* =====================================================
             LEARNING AREAS
         ====================================================== */}
+
         <section className="courses-tech-section">
-
           <div className="container-page">
-
             <Reveal>
-
               <div className="max-w-3xl">
-
                 <div className="section-eyebrow light">
                   WHAT YOU CAN LEARN
                 </div>
@@ -467,26 +498,20 @@ export default function CoursesPage() {
                   Build a broad foundation across the areas that
                   support modern software and digital applications.
                 </p>
-
               </div>
-
             </Reveal>
 
             <div className="learning-area-grid">
-
-              {learningAreas.map(
-                (area, index) => (
-                  <Reveal
-                    key={area.title}
-                    delay={index * 0.06}
-                  >
-                    <LearningArea
-                      {...area}
-                    />
-                  </Reveal>
-                )
-              )}
-
+              {learningAreas.map((area, index) => (
+                <Reveal
+                  key={area.title}
+                  delay={index * 0.06}
+                >
+                  <LearningArea
+                    {...area}
+                  />
+                </Reveal>
+              ))}
             </div>
           </div>
         </section>
@@ -494,14 +519,11 @@ export default function CoursesPage() {
         {/* =====================================================
             TEXTBOOK SECTION
         ====================================================== */}
+
         <section className="section-space bg-white">
-
           <div className="container-page">
-
             <Reveal>
-
               <div className="textbook-header">
-
                 <div>
                   <div className="section-eyebrow">
                     LEARNING RESOURCES
@@ -523,88 +545,76 @@ export default function CoursesPage() {
 
                 <div className="book-header-badge">
                   <BookOpen className="h-5 w-5" />
+
                   <span>
                     TEXTBOOKS & REFERENCES
                   </span>
                 </div>
-
               </div>
-
             </Reveal>
 
             <div className="textbook-grid">
+              {textbookImages.map((book, index) => (
+                <Reveal
+                  key={book.title}
+                  delay={index * 0.08}
+                >
+                  <div className="textbook-card">
+                    <div className="textbook-image-wrap">
+                      <img
+                        src={book.image}
+                        alt={book.title}
+                        loading="lazy"
+                      />
 
-              {textbookImages.map(
-                (book, index) => (
-                  <Reveal
-                    key={book.title}
-                    delay={index * 0.08}
-                  >
-                    <div className="textbook-card">
+                      <div className="textbook-image-shine" />
 
-                      <div className="textbook-image-wrap">
-
-                        <img
-                          src={book.image}
-                          alt={book.title}
-                          loading="lazy"
-                        />
-
-                        <div className="textbook-image-shine" />
-
-                        <div className="textbook-tag">
-                          BCA
-                        </div>
-
+                      <div className="textbook-tag">
+                        BCA
                       </div>
-
-                      <div className="textbook-content">
-
-                        <div className="text-[9px] font-black uppercase tracking-[0.15em] text-[var(--blue)]">
-                          {book.subtitle}
-                        </div>
-
-                        <h3>
-                          {book.title}
-                        </h3>
-
-                        <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-                          <BookOpen className="h-3.5 w-3.5" />
-                          Academic reference
-                        </div>
-
-                      </div>
-
                     </div>
-                  </Reveal>
-                )
-              )}
 
+                    <div className="textbook-content">
+                      <div className="text-[9px] font-black uppercase tracking-[0.15em] text-[var(--blue)]">
+                        {book.subtitle}
+                      </div>
+
+                      <h3>
+                        {book.title}
+                      </h3>
+
+                      <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+                        <BookOpen className="h-3.5 w-3.5" />
+                        Academic reference
+                      </div>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
             </div>
 
             <div className="textbook-note">
               <ShieldCheck className="h-4 w-4" />
-              Textbook examples shown on this page are illustrative.
-              Use your college/university's prescribed syllabus and
-              official reading list for academic requirements.
-            </div>
 
+              <span>
+                Textbook examples shown on this page are illustrative.
+                Use your college or university prescribed syllabus and
+                official reading list for academic requirements.
+              </span>
+            </div>
           </div>
         </section>
 
         {/* =====================================================
             SKILLS
         ====================================================== */}
+
         <section className="skills-section">
-
           <div className="container-page">
-
             <div className="skills-layout">
 
               <Reveal>
-
                 <div>
-
                   <div className="section-eyebrow light">
                     SKILLS & OUTCOMES
                   </div>
@@ -612,7 +622,7 @@ export default function CoursesPage() {
                   <h2 className="courses-dark-title">
                     Turn academic learning into
                     <span className="gold-text">
-                      practical ability.
+                      {" "}practical ability.
                     </span>
                   </h2>
 
@@ -623,29 +633,21 @@ export default function CoursesPage() {
                   </p>
 
                   <div className="skills-check-grid">
-
-                    {skillGroups.map(
-                      (skill) => (
-                        <div
-                          key={skill}
-                          className="skills-check"
-                        >
-                          <CheckCircle2 className="h-4 w-4" />
-                          {skill}
-                        </div>
-                      )
-                    )}
-
+                    {skillGroups.map((skill) => (
+                      <div
+                        key={skill}
+                        className="skills-check"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        {skill}
+                      </div>
+                    ))}
                   </div>
-
                 </div>
-
               </Reveal>
 
               <Reveal delay={0.12}>
-
                 <div className="skills-visual-card">
-
                   <img
                     src="https://www.tatapublicationsbooks.com/storage/programming-in-c-copy.jpg"
                     alt="Programming in C textbook"
@@ -670,9 +672,7 @@ export default function CoursesPage() {
                       further learning across many technology areas.
                     </p>
                   </div>
-
                 </div>
-
               </Reveal>
 
             </div>
@@ -682,14 +682,12 @@ export default function CoursesPage() {
         {/* =====================================================
             CAREER PATHS
         ====================================================== */}
-        <section className="section-space bg-white">
 
+        <section className="section-space bg-white">
           <div className="container-page">
 
             <Reveal>
-
               <div className="max-w-3xl">
-
                 <div className="section-eyebrow">
                   CAREER PATHWAYS
                 </div>
@@ -704,38 +702,29 @@ export default function CoursesPage() {
                   learning. A BCA foundation can support several
                   technology-oriented directions.
                 </p>
-
               </div>
-
             </Reveal>
 
             <div className="career-grid">
-
-              {careerPaths.map(
-                (career, index) => (
-                  <Reveal
-                    key={career.title}
-                    delay={index * 0.05}
-                  >
-                    <CareerCard
-                      {...career}
-                    />
-                  </Reveal>
-                )
-              )}
-
+              {careerPaths.map((career, index) => (
+                <Reveal
+                  key={career.title}
+                  delay={index * 0.05}
+                >
+                  <CareerCard
+                    {...career}
+                  />
+                </Reveal>
+              ))}
             </div>
 
             <Reveal delay={0.1}>
-
               <div className="career-advice-card">
-
                 <div className="career-advice-icon">
                   <BriefcaseBusiness className="h-5 w-5" />
                 </div>
 
                 <div>
-
                   <div className="career-advice-title">
                     Build the skills employers actually see.
                   </div>
@@ -745,7 +734,6 @@ export default function CoursesPage() {
                     internships, problem solving and a strong
                     portfolio can complement your academic degree.
                   </p>
-
                 </div>
 
                 <Link
@@ -755,21 +743,17 @@ export default function CoursesPage() {
                   Talk to the college
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-
               </div>
-
             </Reveal>
-
           </div>
         </section>
 
         {/* =====================================================
             FUTURE VISUAL
         ====================================================== */}
+
         <section className="courses-future-section">
-
           <div className="container-page">
-
             <div className="future-card">
 
               <img
@@ -781,7 +765,6 @@ export default function CoursesPage() {
               <div className="future-overlay" />
 
               <div className="future-content">
-
                 <div className="section-eyebrow light">
                   THE DIGITAL FUTURE
                 </div>
@@ -805,25 +788,20 @@ export default function CoursesPage() {
                   View BCA Details
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-
               </div>
-
             </div>
-
           </div>
         </section>
 
         {/* =====================================================
             LIVE COURSES
         ====================================================== */}
-        <section className="section-space bg-white">
 
+        <section className="section-space bg-white">
           <div className="container-page">
 
             <Reveal>
-
               <div className="text-center">
-
                 <div className="section-eyebrow">
                   LIVE ACADEMIC DATA
                 </div>
@@ -836,13 +814,10 @@ export default function CoursesPage() {
                   Course information below is loaded from the
                   live campus database.
                 </p>
-
               </div>
-
             </Reveal>
 
             <div className="mt-10 grid gap-5 lg:grid-cols-3">
-
               {courses.loading && (
                 <LiveCourseCard
                   text="Loading courses..."
@@ -856,83 +831,72 @@ export default function CoursesPage() {
                   />
                 )}
 
-              {activeCourses.map(
-                (course, index) => (
-                  <motion.article
-                    key={course.id}
-                    className={`live-course-card live-course-${index % 3}`}
-                    initial={{
-                      opacity: 0,
-                      y: 20,
-                    }}
-                    whileInView={{
-                      opacity: 1,
-                      y: 0,
-                    }}
-                    viewport={{
-                      once: true,
-                      amount: 0.15,
-                    }}
-                    transition={{
-                      duration: 0.5,
-                      delay: index * 0.06,
-                    }}
+              {activeCourses.map((course, index) => (
+                <motion.article
+                  key={course.id}
+                  className={`live-course-card live-course-${index % 3}`}
+                  initial={{
+                    opacity: 0,
+                    y: 20,
+                  }}
+                  whileInView={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  viewport={{
+                    once: true,
+                    amount: 0.15,
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    delay: index * 0.06,
+                  }}
+                >
+                  <div className="live-course-top">
+                    <span className="live-course-code">
+                      {course.code || "NDC"}
+                    </span>
+
+                    <span className="live-course-duration">
+                      {course.duration || "Programme"}
+                    </span>
+                  </div>
+
+                  <h3>
+                    {course.name || "Course"}
+                  </h3>
+
+                  <p>
+                    {course.description ||
+                      "Course details will be published by the college."}
+                  </p>
+
+                  <Link
+                    href="/courses/bca"
+                    className="live-course-link"
                   >
-
-                    <div className="live-course-top">
-
-                      <span className="live-course-code">
-                        {course.code || "NDC"}
-                      </span>
-
-                      <span className="live-course-duration">
-                        {course.duration || "Programme"}
-                      </span>
-
-                    </div>
-
-                    <h3>
-                      {course.name || "Course"}
-                    </h3>
-
-                    <p>
-                      {course.description ||
-                        "Course details will be published by the college."}
-                    </p>
-
-                    <Link
-                      href="/courses/bca"
-                      className="live-course-link"
-                    >
-                      Explore programme
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-
-                  </motion.article>
-                )
-              )}
-
+                    Explore programme
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </motion.article>
+              ))}
             </div>
-
           </div>
         </section>
 
         {/* =====================================================
             CTA
         ====================================================== */}
-        <section className="courses-final-cta">
 
+        <section className="courses-final-cta">
           <div className="final-cta-orb cta-orb-a" />
           <div className="final-cta-orb cta-orb-b" />
 
           <div className="container-page relative z-10">
-
             <Reveal>
-
               <div className="courses-final-inner">
 
                 <div>
-
                   <div className="section-eyebrow light">
                     START YOUR JOURNEY
                   </div>
@@ -947,11 +911,9 @@ export default function CoursesPage() {
                     learning pathway and contact the college for
                     current admission information.
                   </p>
-
                 </div>
 
                 <div className="courses-final-actions">
-
                   <Link
                     href="/courses/bca"
                     className="courses-primary-button"
@@ -966,13 +928,10 @@ export default function CoursesPage() {
                   >
                     Contact College
                   </Link>
-
                 </div>
 
               </div>
-
             </Reveal>
-
           </div>
         </section>
 
@@ -983,10 +942,6 @@ export default function CoursesPage() {
           overflow: hidden;
           background: #f8fafc;
         }
-
-        /* ==================================================
-           HERO
-        ================================================== */
 
         .courses-premium-hero {
           position: relative;
@@ -1000,7 +955,7 @@ export default function CoursesPage() {
             ),
             radial-gradient(
               circle at 85% 10%,
-              rgba(139, 92, 246, 0.20),
+              rgba(139, 92, 246, 0.2),
               transparent 28%
             ),
             linear-gradient(
@@ -1272,8 +1227,6 @@ export default function CoursesPage() {
           color: #f6d66f;
         }
 
-        /* HERO IMAGE */
-
         .courses-hero-visual {
           position: relative;
           min-height: 520px;
@@ -1283,7 +1236,7 @@ export default function CoursesPage() {
 
         .courses-orbit {
           position: absolute;
-          border: 1px solid rgba(255, 255, 255, 0.10);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 50%;
           animation: orbitSpin 20s linear infinite;
         }
@@ -1364,7 +1317,7 @@ export default function CoursesPage() {
           color: white;
           font-size: 8px;
           font-weight: 900;
-          letter-spacing: 0.10em;
+          letter-spacing: 0.1em;
           backdrop-filter: blur(8px);
         }
 
@@ -1403,13 +1356,10 @@ export default function CoursesPage() {
           background: rgba(7, 27, 64, 0.76);
           color: white;
           box-shadow:
-            0 18px 38px rgba(0, 0, 0, 0.20);
+            0 18px 38px rgba(0, 0, 0, 0.2);
           backdrop-filter: blur(14px);
           animation:
-            floatingInfo
-            5s
-            ease-in-out
-            infinite;
+            floatingInfo 5s ease-in-out infinite;
         }
 
         .floating-info-top {
@@ -1450,7 +1400,7 @@ export default function CoursesPage() {
           max-width: 750px;
           margin-top: 50px;
           padding-top: 23px;
-          border-top: 1px solid rgba(255, 255, 255, 0.10);
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .course-metric {
@@ -1473,13 +1423,9 @@ export default function CoursesPage() {
           color: #93c5fd;
           font-size: 9px;
           font-weight: 800;
-          letter-spacing: 0.10em;
+          letter-spacing: 0.1em;
           text-transform: uppercase;
         }
-
-        /* ==================================================
-           INTRO
-        ================================================== */
 
         .programme-intro-grid {
           display: grid;
@@ -1617,17 +1563,13 @@ export default function CoursesPage() {
           font-size: 9px;
         }
 
-        /* ==================================================
-           TECH
-        ================================================== */
-
         .courses-tech-section {
           padding: 100px 0;
           color: white;
           background:
             radial-gradient(
               circle at 85% 15%,
-              rgba(59, 130, 246, 0.20),
+              rgba(59, 130, 246, 0.2),
               transparent 30%
             ),
             radial-gradient(
@@ -1739,10 +1681,6 @@ export default function CoursesPage() {
           background: #f6d66f;
         }
 
-        /* ==================================================
-           TEXTBOOKS
-        ================================================== */
-
         .textbook-header {
           display: flex;
           align-items: flex-end;
@@ -1789,7 +1727,7 @@ export default function CoursesPage() {
           transform: translateY(-7px);
           border-color: #bfdbfe;
           box-shadow:
-            0 22px 42px rgba(15, 61, 145, 0.10);
+            0 22px 42px rgba(15, 61, 145, 0.1);
         }
 
         .textbook-image-wrap {
@@ -1886,10 +1824,6 @@ export default function CoursesPage() {
           margin-top: 1px;
         }
 
-        /* ==================================================
-           SKILLS
-        ================================================== */
-
         .skills-section {
           padding: 100px 0;
           color: white;
@@ -1975,7 +1909,7 @@ export default function CoursesPage() {
           background:
             linear-gradient(
               145deg,
-              rgba(7, 27, 64, 0.10),
+              rgba(7, 27, 64, 0.1),
               rgba(7, 27, 64, 0.76)
             );
         }
@@ -1999,10 +1933,6 @@ export default function CoursesPage() {
           font-size: 11px;
           line-height: 1.7;
         }
-
-        /* ==================================================
-           CAREERS
-        ================================================== */
 
         .career-grid {
           display: grid;
@@ -2134,10 +2064,6 @@ export default function CoursesPage() {
           white-space: nowrap;
         }
 
-        /* ==================================================
-           FUTURE VISUAL
-        ================================================== */
-
         .courses-future-section {
           padding: 90px 0;
           background: #f8fafc;
@@ -2174,7 +2100,7 @@ export default function CoursesPage() {
             linear-gradient(
               90deg,
               rgba(7, 27, 64, 0.93),
-              rgba(7, 27, 64, 0.60) 52%,
+              rgba(7, 27, 64, 0.6) 52%,
               rgba(7, 27, 64, 0.22)
             );
         }
@@ -2206,10 +2132,6 @@ export default function CoursesPage() {
         .future-content .courses-primary-button {
           margin-top: 25px;
         }
-
-        /* ==================================================
-           LIVE COURSES
-        ================================================== */
 
         .live-course-card {
           padding: 24px;
@@ -2294,10 +2216,6 @@ export default function CoursesPage() {
           text-decoration: none;
         }
 
-        /* ==================================================
-           FINAL CTA
-        ================================================== */
-
         .courses-final-cta {
           position: relative;
           overflow: hidden;
@@ -2306,7 +2224,7 @@ export default function CoursesPage() {
           background:
             radial-gradient(
               circle at 85% 15%,
-              rgba(59, 130, 246, 0.20),
+              rgba(59, 130, 246, 0.2),
               transparent 30%
             ),
             linear-gradient(
@@ -2319,7 +2237,7 @@ export default function CoursesPage() {
         .final-cta-orb {
           position: absolute;
           border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.10);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           pointer-events: none;
           animation: orbitSpin 20s linear infinite;
         }
@@ -2389,10 +2307,6 @@ export default function CoursesPage() {
           text-decoration: none;
         }
 
-        /* ==================================================
-           ANIMATIONS
-        ================================================== */
-
         @keyframes movingGradient {
           0% {
             background-position: 0% 50%;
@@ -2448,7 +2362,7 @@ export default function CoursesPage() {
           50% {
             transform:
               translate(-15px, -12px)
-              scale(1.10);
+              scale(1.1);
           }
         }
 
@@ -2652,6 +2566,11 @@ export default function CoursesPage() {
           .future-content h2 {
             font-size: 38px;
           }
+
+          .textbook-header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -2802,12 +2721,7 @@ function LearningArea({
   title,
   description,
   tone,
-}: {
-  icon: typeof Code2;
-  title: string;
-  description: string;
-  tone: "blue" | "purple" | "gold" | "green";
-}) {
+}: LearningAreaItem) {
   return (
     <div className={`learning-area learning-${tone}`}>
       <div className="learning-icon">
@@ -2828,18 +2742,7 @@ function CareerCard({
   title,
   description,
   tone,
-}: {
-  icon: typeof Code2;
-  title: string;
-  description: string;
-  tone:
-    | "blue"
-    | "purple"
-    | "gold"
-    | "green"
-    | "cyan"
-    | "rose";
-}) {
+}: CareerPathItem) {
   return (
     <div className={`career-card career-${tone}`}>
       <div className="career-icon">

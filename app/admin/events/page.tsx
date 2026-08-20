@@ -1,6 +1,8 @@
+
 "use client";
 
 import { useState } from "react";
+
 import {
   CalendarDays,
   Clock3,
@@ -11,7 +13,13 @@ import {
   X,
 } from "lucide-react";
 
-import { addDoc, collection, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 
 import { firestoreDb } from "@/lib/firebase/client";
 import { useLiveCollection } from "@/hooks/useLiveCollection";
@@ -66,9 +74,14 @@ export default function EventsAdminPage() {
     }
   );
 
-  const [form, setForm] = useState<EventForm>(emptyForm);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] =
+    useState<EventForm>(emptyForm);
+
+  const [editingId, setEditingId] =
+    useState<string | null>(null);
+
   const [showForm, setShowForm] = useState(false);
+
   const [saving, setSaving] = useState(false);
 
   const updateField = (
@@ -103,9 +116,10 @@ export default function EventsAdminPage() {
       status: event.status || "published",
       imageUrl: event.imageUrl || "",
       organizer: event.organizer || "",
-      capacity: event.capacity
-        ? String(event.capacity)
-        : "",
+      capacity:
+        event.capacity != null
+          ? String(event.capacity)
+          : "",
     });
 
     setShowForm(true);
@@ -118,7 +132,7 @@ export default function EventsAdminPage() {
   };
 
   const saveEvent = async (
-    event: React.FormEvent
+    event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
 
@@ -134,6 +148,18 @@ export default function EventsAdminPage() {
 
     try {
       setSaving(true);
+
+      /*
+       * firestoreDb is nullable in the Firebase client.
+       * Narrow it once, then use the local db variable.
+       */
+      const db = firestoreDb;
+
+      if (db === null) {
+        throw new Error(
+          "Firestore is not initialized. Check your Firebase configuration."
+        );
+      }
 
       const eventData = {
         title: form.title.trim(),
@@ -153,16 +179,12 @@ export default function EventsAdminPage() {
 
       if (editingId) {
         await updateDoc(
-          doc(
-            firestoreDb,
-            "events",
-            editingId
-          ),
+          doc(db, "events", editingId),
           eventData
         );
       } else {
         await addDoc(
-          collection(firestoreDb, "events"),
+          collection(db, "events"),
           {
             ...eventData,
             createdAt: new Date().toISOString(),
@@ -178,7 +200,9 @@ export default function EventsAdminPage() {
       );
 
       alert(
-        "Unable to save event. Check your Firebase permissions."
+        error instanceof Error
+          ? error.message
+          : "Unable to save event. Check your Firebase permissions."
       );
     } finally {
       setSaving(false);
@@ -190,11 +214,21 @@ export default function EventsAdminPage() {
       "Are you sure you want to delete this event?"
     );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     try {
+      const db = firestoreDb;
+
+      if (db === null) {
+        throw new Error(
+          "Firestore is not initialized. Check your Firebase configuration."
+        );
+      }
+
       await deleteDoc(
-        doc(firestoreDb, "events", id)
+        doc(db, "events", id)
       );
     } catch (error) {
       console.error(
@@ -203,14 +237,19 @@ export default function EventsAdminPage() {
       );
 
       alert(
-        "Unable to delete event. Check your Firebase permissions."
+        error instanceof Error
+          ? error.message
+          : "Unable to delete event. Check your Firebase permissions."
       );
     }
   };
 
   return (
     <main className="space-y-6">
-      {/* Header */}
+      {/* =====================================================
+          HEADER
+      ====================================================== */}
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--gold)]">
@@ -237,7 +276,10 @@ export default function EventsAdminPage() {
         </button>
       </div>
 
-      {/* Live status */}
+      {/* =====================================================
+          LIVE STATUS
+      ====================================================== */}
+
       <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4">
         <span className="relative flex h-3 w-3">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -256,7 +298,10 @@ export default function EventsAdminPage() {
         </div>
       </div>
 
-      {/* Form */}
+      {/* =====================================================
+          FORM
+      ====================================================== */}
+
       {showForm && (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
           <div className="mb-6 flex items-center justify-between">
@@ -286,6 +331,7 @@ export default function EventsAdminPage() {
             className="grid gap-5 md:grid-cols-2"
           >
             {/* Title */}
+
             <div className="md:col-span-2">
               <label className="mb-2 block text-sm font-bold text-slate-700">
                 Event Title *
@@ -300,11 +346,13 @@ export default function EventsAdminPage() {
                   )
                 }
                 placeholder="Annual College Fest 2026"
+                required
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-[var(--blue)] focus:ring-4 focus:ring-blue-100"
               />
             </div>
 
             {/* Description */}
+
             <div className="md:col-span-2">
               <label className="mb-2 block text-sm font-bold text-slate-700">
                 Description
@@ -325,6 +373,7 @@ export default function EventsAdminPage() {
             </div>
 
             {/* Date */}
+
             <div>
               <label className="mb-2 block text-sm font-bold text-slate-700">
                 Date *
@@ -339,11 +388,13 @@ export default function EventsAdminPage() {
                     e.target.value
                   )
                 }
+                required
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-[var(--blue)] focus:ring-4 focus:ring-blue-100"
               />
             </div>
 
             {/* Time */}
+
             <div>
               <label className="mb-2 block text-sm font-bold text-slate-700">
                 Time
@@ -364,6 +415,7 @@ export default function EventsAdminPage() {
             </div>
 
             {/* Venue */}
+
             <div>
               <label className="mb-2 block text-sm font-bold text-slate-700">
                 Venue
@@ -384,6 +436,7 @@ export default function EventsAdminPage() {
             </div>
 
             {/* Category */}
+
             <div>
               <label className="mb-2 block text-sm font-bold text-slate-700">
                 Category
@@ -399,34 +452,35 @@ export default function EventsAdminPage() {
                 }
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-[var(--blue)] focus:ring-4 focus:ring-blue-100"
               >
-                <option>
+                <option value="College Event">
                   College Event
                 </option>
-                <option>
+                <option value="Academic">
                   Academic
                 </option>
-                <option>
+                <option value="Cultural">
                   Cultural
                 </option>
-                <option>
+                <option value="Sports">
                   Sports
                 </option>
-                <option>
+                <option value="Workshop">
                   Workshop
                 </option>
-                <option>
+                <option value="Seminar">
                   Seminar
                 </option>
-                <option>
+                <option value="Competition">
                   Competition
                 </option>
-                <option>
+                <option value="Celebration">
                   Celebration
                 </option>
               </select>
             </div>
 
             {/* Organizer */}
+
             <div>
               <label className="mb-2 block text-sm font-bold text-slate-700">
                 Organizer
@@ -447,6 +501,7 @@ export default function EventsAdminPage() {
             </div>
 
             {/* Capacity */}
+
             <div>
               <label className="mb-2 block text-sm font-bold text-slate-700">
                 Capacity
@@ -468,6 +523,7 @@ export default function EventsAdminPage() {
             </div>
 
             {/* Status */}
+
             <div>
               <label className="mb-2 block text-sm font-bold text-slate-700">
                 Status
@@ -498,6 +554,7 @@ export default function EventsAdminPage() {
             </div>
 
             {/* Image */}
+
             <div className="md:col-span-2">
               <label className="mb-2 block text-sm font-bold text-slate-700">
                 Event Image URL
@@ -523,11 +580,13 @@ export default function EventsAdminPage() {
             </div>
 
             {/* Buttons */}
+
             <div className="flex flex-col gap-3 pt-2 sm:flex-row md:col-span-2 md:justify-end">
               <button
                 type="button"
                 onClick={closeForm}
-                className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50"
+                disabled={saving}
+                className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -548,7 +607,10 @@ export default function EventsAdminPage() {
         </div>
       )}
 
-      {/* Events list */}
+      {/* =====================================================
+          EVENTS LIST
+      ====================================================== */}
+
       <section className="rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-slate-100 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -580,7 +642,16 @@ export default function EventsAdminPage() {
             </div>
           )}
 
+          {events.error && !events.loading && (
+            <div className="p-6">
+              <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                {events.error}
+              </div>
+            </div>
+          )}
+
           {!events.loading &&
+            !events.error &&
             events.data.length === 0 && (
               <div className="p-12 text-center">
                 <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-blue-50 text-[var(--blue)]">
@@ -694,3 +765,4 @@ export default function EventsAdminPage() {
     </main>
   );
 }
+
