@@ -21,15 +21,40 @@ import { firestoreDb } from "@/lib/firebase/client";
 import { useLiveCollection } from "@/hooks/useLiveCollection";
 import { useScmsSession } from "@/lib/auth/session";
 
+/* ============================================================
+   TYPES
+============================================================ */
+
 type Student = {
   id: string;
-  userId?: string;
-  name?: string;
+
+  // Internal Firebase identity.
+  // Never display this as the college register number.
+  uid?: string;
+
+  // Official college identifier.
   studentId?: string;
+  registerNumber?: string;
+  collegeRegisterUid?: string;
+
+  name?: string;
+  email?: string;
+  phone?: string;
+
+  year?: string;
+  department?: string;
+
+  course?: string;
   courseId?: string;
+
+  semester?: string;
   semesterId?: string;
+
+  section?: string;
   sectionId?: string;
+
   cgpa?: number;
+  status?: string;
 };
 
 type Notice = {
@@ -54,15 +79,25 @@ type Fee = {
   amountDue?: number;
 };
 
-export default function Student() {
-  const { user, loading: sessionLoading, error: sessionError } =
-    useScmsSession("student");
+/* ============================================================
+   STUDENT DASHBOARD
+============================================================ */
 
-  /*
-   * IMPORTANT:
-   * Do not start protected collection listeners until the
-   * authenticated SCMS user is available.
-   */
+export default function Student() {
+  const {
+    user,
+    loading: sessionLoading,
+    error: sessionError,
+  } = useScmsSession("student");
+
+  /* ==========================================================
+     STUDENT RECORD
+
+     The authenticated Firebase UID is used internally to find
+     the student's approved Firestore record.
+
+     The college register number is NOT the Firebase UID.
+  ========================================================== */
 
   const {
     data: student,
@@ -75,7 +110,7 @@ export default function Student() {
       filters: user?.uid
         ? [
             {
-              field: "userId",
+              field: "uid",
               op: "==",
               value: user.uid,
             },
@@ -87,10 +122,10 @@ export default function Student() {
 
   const profile = student[0];
 
-  /*
-   * Notices are public/published data, so this listener can run
-   * independently of the authenticated user.
-   */
+  /* ==========================================================
+     NOTICES
+  ========================================================== */
+
   const notices = useLiveCollection<Notice>(
     firestoreDb,
     "notices",
@@ -106,10 +141,10 @@ export default function Student() {
     }
   );
 
-  /*
-   * Subjects should only be queried after the Student record
-   * tells us which course they belong to.
-   */
+  /* ==========================================================
+     SUBJECTS
+  ========================================================== */
+
   const {
     data: subjectsData,
     loading: subjectsLoading,
@@ -131,9 +166,10 @@ export default function Student() {
     }
   );
 
-  /*
-   * Fees must always be filtered by the authenticated user.
-   */
+  /* ==========================================================
+     FEES
+  ========================================================== */
+
   const {
     data: feesData,
     loading: feesLoading,
@@ -166,9 +202,10 @@ export default function Student() {
     0
   );
 
-  /*
-   * Session loading state.
-   */
+  /* ==========================================================
+     SESSION LOADING
+  ========================================================== */
+
   if (sessionLoading) {
     return (
       <PortalShell
@@ -178,16 +215,20 @@ export default function Student() {
         <div className="grid min-h-[60vh] place-items-center">
           <div className="flex flex-col items-center gap-3 text-sm text-slate-500">
             <Loader2 className="h-7 w-7 animate-spin text-[var(--blue)]" />
-            Verifying your student account...
+
+            <span>
+              Verifying your student account...
+            </span>
           </div>
         </div>
       </PortalShell>
     );
   }
 
-  /*
-   * Session error.
-   */
+  /* ==========================================================
+     SESSION ERROR
+  ========================================================== */
+
   if (sessionError || !user) {
     return (
       <PortalShell
@@ -216,271 +257,427 @@ export default function Student() {
     );
   }
 
+  /* ==========================================================
+     OFFICIAL COLLEGE REGISTER NUMBER
+
+     Priority:
+     1. studentId
+     2. registerNumber
+     3. collegeRegisterUid
+
+     IMPORTANT:
+     We do NOT use user.collegeRegisterUid because
+     SessionUser does not define that property.
+  ========================================================== */
+
+  const collegeRegisterUid =
+    profile?.studentId?.trim() ||
+    profile?.registerNumber?.trim() ||
+    profile?.collegeRegisterUid?.trim() ||
+    "Not assigned";
+
+  /* ==========================================================
+     DISPLAY NAME
+  ========================================================== */
+
+  const studentName =
+    profile?.name ||
+    user.name ||
+    "Student";
+
+  /* ==========================================================
+     DASHBOARD
+  ========================================================== */
+
   return (
     <PortalShell
       role="student"
       title="Student Dashboard"
     >
-      <PageHeading
-        eyebrow={`Welcome, ${user.name || "Student"}`}
-        title="Your academic overview"
-        description="Live academic information from your college account."
-      />
+      <main className="space-y-8 pb-10">
 
-      {/* ==================================================
-          SUMMARY
-      ================================================== */}
+        {/* ======================================================
+            HEADER
+        ======================================================= */}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-
-        <StatCard
-          label="Attendance"
-          value="—"
-          icon={ClipboardCheck}
-          trend="Updated from attendance records"
+        <PageHeading
+          eyebrow={`Welcome, ${studentName}`}
+          title="Your academic overview"
+          description="Live academic information from your college account."
         />
 
-        <StatCard
-          label="Current CGPA"
-          value={
-            profile?.cgpa != null
-              ? profile.cgpa.toFixed(2)
-              : "—"
-          }
-          icon={GraduationCap}
-          trend="Official academic record"
-        />
+        {/* ======================================================
+            IDENTITY CARD
+        ======================================================= */}
 
-        <StatCard
-          label="Subjects"
-          value={String(subjectsData.length)}
-          icon={BookOpen}
-          trend="Live subject allocation"
-        />
+        <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 p-6 text-white shadow-xl">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
 
-        <StatCard
-          label="Fee Balance"
-          value={
-            feesData.length
-              ? `₹${feeBalance.toLocaleString("en-IN")}`
-              : "—"
-          }
-          icon={CreditCard}
-          trend="Live fee records"
-        />
+            {/* STUDENT INFORMATION */}
 
-      </div>
+            <div className="flex items-center gap-4">
+              {user.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={studentName}
+                  className="h-16 w-16 rounded-2xl object-cover ring-2 ring-white/20"
+                />
+              ) : (
+                <div className="grid h-16 w-16 place-items-center rounded-2xl bg-white/10 text-xl font-black">
+                  {studentName
+                    .charAt(0)
+                    .toUpperCase() || "S"}
+                </div>
+              )}
 
-      {/* ==================================================
-          SUBJECTS + ACCOUNT
-      ================================================== */}
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-300">
+                  Student Profile
+                </p>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
+                <h2 className="mt-1 text-2xl font-black">
+                  {studentName}
+                </h2>
 
-        <div className="card p-6">
+                <p className="mt-1 text-sm text-blue-200">
+                  {profile?.course ||
+                    profile?.courseId ||
+                    "Course not assigned"}
+                </p>
+              </div>
+            </div>
 
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h3 className="font-extrabold text-[var(--navy)]">
-                Subjects
-              </h3>
+            {/* COLLEGE REGISTER NUMBER */}
 
-              <p className="mt-1 text-xs text-slate-500">
-                Live records assigned to your course.
+            <div className="rounded-2xl border border-white/10 bg-white/10 px-5 py-4 backdrop-blur">
+              <p className="text-[10px] font-black uppercase tracking-wider text-blue-200">
+                College Register Number
+              </p>
+
+              <p className="mt-1 text-xl font-black tracking-wide text-white">
+                {collegeRegisterUid}
               </p>
             </div>
-
-            <Badge tone="blue">
-              {subjectsData.length} subjects
-            </Badge>
           </div>
+        </section>
 
-          <div className="mt-6 grid gap-5">
+        {/* ======================================================
+            SUMMARY
+        ======================================================= */}
 
-            {subjectsLoading && (
-              <div className="flex items-center gap-2 text-sm text-slate-500">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Loading subjects...
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+
+          <StatCard
+            label="Attendance"
+            value="—"
+            icon={ClipboardCheck}
+            trend="Updated from attendance records"
+          />
+
+          <StatCard
+            label="Current CGPA"
+            value={
+              profile?.cgpa != null
+                ? profile.cgpa.toFixed(2)
+                : "—"
+            }
+            icon={GraduationCap}
+            trend="Official academic record"
+          />
+
+          <StatCard
+            label="Subjects"
+            value={String(subjectsData.length)}
+            icon={BookOpen}
+            trend="Live subject allocation"
+          />
+
+          <StatCard
+            label="Fee Balance"
+            value={
+              feesData.length
+                ? `₹${feeBalance.toLocaleString("en-IN")}`
+                : "—"
+            }
+            icon={CreditCard}
+            trend="Live fee records"
+          />
+        </div>
+
+        {/* ======================================================
+            ACADEMIC + ACCOUNT
+        ======================================================= */}
+
+        <div className="grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
+
+          {/* ====================================================
+              SUBJECTS
+          ===================================================== */}
+
+          <div className="card p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="font-extrabold text-[var(--navy)]">
+                  Subjects
+                </h3>
+
+                <p className="mt-1 text-xs text-slate-500">
+                  Live records assigned to your course.
+                </p>
               </div>
-            )}
 
-            {subjectsError && (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                Unable to load your subjects.
-              </div>
-            )}
+              <Badge tone="blue">
+                {subjectsData.length} subjects
+              </Badge>
+            </div>
 
-            {!subjectsLoading &&
-              !subjectsError &&
-              !subjectsData.length && (
-                <div className="rounded-xl bg-slate-50 p-5 text-sm text-slate-500">
-                  No subjects have been assigned
-                  to your account yet.
+            <div className="mt-6 grid gap-5">
+
+              {subjectsLoading && (
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading subjects...
                 </div>
               )}
 
-            {subjectsData.map((subject) => (
-              <Progress
-                key={subject.id}
-                value={Number(subject.attendance ?? 0)}
-                label={subject.name || "Subject"}
+              {subjectsError && (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                  Unable to load your subjects.
+                </div>
+              )}
+
+              {!subjectsLoading &&
+                !subjectsError &&
+                !subjectsData.length && (
+                  <div className="rounded-xl bg-slate-50 p-5 text-sm text-slate-500">
+                    No subjects have been assigned
+                    to your account yet.
+                  </div>
+                )}
+
+              {subjectsData.map((subject) => (
+                <Progress
+                  key={subject.id}
+                  value={Number(
+                    subject.attendance ?? 0
+                  )}
+                  label={
+                    subject.name ||
+                    "Subject"
+                  }
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* ====================================================
+              ACCOUNT
+          ===================================================== */}
+
+          <div className="card p-6">
+            <div className="flex items-center justify-between">
+              <h3 className="font-extrabold text-[var(--navy)]">
+                Account
+              </h3>
+
+              <CalendarDays className="h-5 w-5 text-[var(--blue)]" />
+            </div>
+
+            <div className="mt-5 grid gap-3">
+
+              <AccountRow
+                label="College Register Number"
+                value={collegeRegisterUid}
               />
-            ))}
 
+              <AccountRow
+                label="Name"
+                value={
+                  profile?.name ||
+                  studentName
+                }
+              />
+
+              <AccountRow
+                label="Gmail"
+                value={
+                  profile?.email ||
+                  user.email ||
+                  "Not assigned"
+                }
+              />
+
+              <AccountRow
+                label="Phone"
+                value={
+                  profile?.phone ||
+                  user.phone ||
+                  "Not assigned"
+                }
+              />
+
+              <AccountRow
+                label="Year"
+                value={
+                  profile?.year ||
+                  "Not assigned"
+                }
+              />
+
+              <AccountRow
+                label="Department"
+                value={
+                  profile?.department ||
+                  "Not assigned"
+                }
+              />
+
+              <AccountRow
+                label="Course"
+                value={
+                  profile?.course ||
+                  profile?.courseId ||
+                  "Not assigned"
+                }
+              />
+
+              <AccountRow
+                label="Semester"
+                value={
+                  profile?.semester ||
+                  profile?.semesterId ||
+                  "Not assigned"
+                }
+              />
+
+              <AccountRow
+                label="Section"
+                value={
+                  profile?.section ||
+                  profile?.sectionId ||
+                  "Not assigned"
+                }
+              />
+            </div>
           </div>
         </div>
 
-        <div className="card p-6">
+        {/* ======================================================
+            NOTICES + STATUS
+        ======================================================= */}
 
-          <div className="flex items-center justify-between">
-            <h3 className="font-extrabold text-[var(--navy)]">
-              Account
-            </h3>
+        <div className="grid gap-6 lg:grid-cols-2">
 
-            <CalendarDays className="h-5 w-5 text-[var(--blue)]" />
-          </div>
+          {/* ====================================================
+              NOTICES
+          ===================================================== */}
 
-          <div className="mt-5 grid gap-3">
+          <div className="card p-6">
+            <div className="flex items-center justify-between">
+              <h3 className="font-extrabold text-[var(--navy)]">
+                Recent notices
+              </h3>
 
-            <AccountRow
-              label="Student ID"
-              value={
-                profile?.studentId ||
-                "Not assigned"
-              }
-            />
+              <Bell className="h-5 w-5 text-[var(--blue)]" />
+            </div>
 
-            <AccountRow
-              label="Course"
-              value={
-                profile?.courseId ||
-                "Not assigned"
-              }
-            />
+            <div className="mt-4 divide-y divide-slate-100">
 
-            <AccountRow
-              label="Semester"
-              value={
-                profile?.semesterId ||
-                "Not assigned"
-              }
-            />
-
-            <AccountRow
-              label="Section"
-              value={
-                profile?.sectionId ||
-                "Not assigned"
-              }
-            />
-
-          </div>
-        </div>
-
-      </div>
-
-      {/* ==================================================
-          NOTICES + STATUS
-      ================================================== */}
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-
-        <div className="card p-6">
-
-          <div className="flex items-center justify-between">
-            <h3 className="font-extrabold text-[var(--navy)]">
-              Recent notices
-            </h3>
-
-            <Bell className="h-5 w-5 text-[var(--blue)]" />
-          </div>
-
-          <div className="mt-4 divide-y divide-slate-100">
-
-            {notices.loading && (
-              <div className="flex items-center gap-2 py-4 text-sm text-slate-500">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Loading notices...
-              </div>
-            )}
-
-            {notices.error && (
-              <div className="py-4 text-sm text-red-600">
-                Unable to load notices.
-              </div>
-            )}
-
-            {!notices.loading &&
-              !notices.error &&
-              !notices.data.length && (
-                <div className="py-4 text-sm text-slate-500">
-                  No published notices.
+              {notices.loading && (
+                <div className="flex items-center gap-2 py-4 text-sm text-slate-500">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading notices...
                 </div>
               )}
 
-            {notices.data.map((notice) => (
-              <div
-                key={notice.id}
-                className="py-4"
-              >
-                <div className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">
-                  {notice.category || "General"}
+              {notices.error && (
+                <div className="py-4 text-sm text-red-600">
+                  Unable to load notices.
                 </div>
+              )}
 
-                <div className="mt-1 text-sm font-bold text-slate-800">
-                  {notice.title || "Notice"}
-                </div>
+              {!notices.loading &&
+                !notices.error &&
+                !notices.data.length && (
+                  <div className="py-4 text-sm text-slate-500">
+                    No published notices.
+                  </div>
+                )}
 
-                <div className="mt-1 text-xs text-slate-500">
-                  {notice.publishedAt || "Recently"}
+              {notices.data.map((notice) => (
+                <div
+                  key={notice.id}
+                  className="py-4"
+                >
+                  <div className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">
+                    {notice.category ||
+                      "General"}
+                  </div>
+
+                  <div className="mt-1 text-sm font-bold text-slate-800">
+                    {notice.title ||
+                      "Notice"}
+                  </div>
+
+                  <div className="mt-1 text-xs text-slate-500">
+                    {notice.publishedAt ||
+                      "Recently"}
+                  </div>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ====================================================
+              ACCOUNT STATUS
+          ===================================================== */}
+
+          <div className="card p-6">
+            <h3 className="font-extrabold text-[var(--navy)]">
+              Live account status
+            </h3>
+
+            <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-6 text-emerald-800">
+              <div className="flex items-center gap-2 font-bold">
+                <CheckCircle2 className="h-5 w-5" />
+
+                Student account verified
               </div>
-            ))}
 
+              <div className="mt-1">
+                Your college student account is
+                active and approved.
+              </div>
+            </div>
+
+            {(studentLoading ||
+              subjectsLoading ||
+              feesLoading) && (
+              <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Syncing live academic information...
+              </div>
+            )}
+
+            {(studentError ||
+              subjectsError ||
+              feesError) && (
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-800">
+                Some academic information could
+                not be loaded. Your login session
+                is still active.
+              </div>
+            )}
           </div>
         </div>
-
-        <div className="card p-6">
-
-          <h3 className="font-extrabold text-[var(--navy)]">
-            Live account status
-          </h3>
-
-          <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-6 text-emerald-800">
-            <div className="font-bold">
-              Student account verified
-            </div>
-
-            <div className="mt-1">
-              Your Firebase Authentication identity
-              and Firestore student role are active.
-            </div>
-          </div>
-
-          {(studentLoading ||
-            subjectsLoading ||
-            feesLoading) && (
-            <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              Syncing live academic information...
-            </div>
-          )}
-
-          {(studentError ||
-            subjectsError ||
-            feesError) && (
-            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-800">
-              Some academic information could not be
-              loaded. Your login session is still active.
-            </div>
-          )}
-
-        </div>
-
-      </div>
+      </main>
     </PortalShell>
   );
 }
+
+/* ============================================================
+   ACCOUNT ROW
+============================================================ */
 
 function AccountRow({
   label,
@@ -495,7 +692,7 @@ function AccountRow({
         {label}
       </span>
 
-      <span className="text-right text-sm font-extrabold text-[var(--navy)]">
+      <span className="max-w-[60%] break-words text-right text-sm font-extrabold text-[var(--navy)]">
         {value}
       </span>
     </div>

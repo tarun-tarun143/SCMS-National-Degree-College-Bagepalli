@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -18,26 +17,52 @@ import {
   X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import type { Timestamp } from "firebase/firestore";
 
 import PublicShell from "@/components/public/PublicShell";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { firestoreDb } from "@/lib/firebase/client";
 import { useLiveCollection } from "@/hooks/useLiveCollection";
 
+/* ============================================================
+   TYPES
+============================================================ */
+
+type NoticeDateValue =
+  | string
+  | Date
+  | Timestamp
+  | {
+      seconds?: number;
+      nanoseconds?: number;
+      toDate?: () => Date;
+      toMillis?: () => number;
+    }
+  | null
+  | undefined;
+
 type Notice = {
   id: string;
+
   title?: string;
   description?: string;
   content?: string;
+
   category?: string;
   priority?: string;
   status?: string;
-  publishedAt?: string;
-  expiresAt?: string;
+
+  publishedAt?: NoticeDateValue;
+  expiresAt?: NoticeDateValue;
+  createdAt?: NoticeDateValue;
+  updatedAt?: NoticeDateValue;
+
   author?: string;
-  createdAt?: string;
-  updatedAt?: string;
 };
+
+/* ============================================================
+   FILTER OPTIONS
+============================================================ */
 
 const categories = [
   "All",
@@ -51,14 +76,29 @@ const categories = [
   "Holiday",
 ];
 
-const priorities = ["All", "urgent", "important", "normal"];
+const priorities = [
+  "All",
+  "urgent",
+  "important",
+  "normal",
+];
+
+/* ============================================================
+   PAGE
+============================================================ */
 
 export default function NoticesPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [priority, setPriority] = useState("All");
-  const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
+  const [selectedNotice, setSelectedNotice] =
+    useState<Notice | null>(null);
 
+  /*
+   * Real-time Firestore notice listener.
+   *
+   * Only published notices are shown publicly.
+   */
   const notices = useLiveCollection<Notice>(
     firestoreDb,
     "notices",
@@ -74,26 +114,40 @@ export default function NoticesPage() {
     }
   );
 
+  /* ==========================================================
+     FILTER NOTICES
+  ========================================================== */
+
   const filteredNotices = useMemo(() => {
     const searchText = search.trim().toLowerCase();
 
     return notices.data.filter((notice) => {
+      const searchableText = [
+        notice.title ?? "",
+        notice.description ?? "",
+        notice.content ?? "",
+        notice.category ?? "",
+        notice.author ?? "",
+        notice.priority ?? "",
+      ]
+        .join(" ")
+        .toLowerCase();
+
       const matchesSearch =
         !searchText ||
-        notice.title?.toLowerCase().includes(searchText) ||
-        notice.description?.toLowerCase().includes(searchText) ||
-        notice.content?.toLowerCase().includes(searchText) ||
-        notice.category?.toLowerCase().includes(searchText);
+        searchableText.includes(searchText);
 
       const matchesCategory =
         category === "All" ||
-        notice.category?.toLowerCase() === category.toLowerCase();
+        (notice.category ?? "").toLowerCase() ===
+          category.toLowerCase();
 
       const noticePriority =
-        notice.priority?.toLowerCase() || "normal";
+        getPriority(notice.priority);
 
       const matchesPriority =
-        priority === "All" || noticePriority === priority;
+        priority === "All" ||
+        noticePriority === priority;
 
       return (
         matchesSearch &&
@@ -101,49 +155,72 @@ export default function NoticesPage() {
         matchesPriority
       );
     });
-  }, [notices.data, search, category, priority]);
+  }, [
+    notices.data,
+    search,
+    category,
+    priority,
+  ]);
+
+  /* ==========================================================
+     FEATURED NOTICE
+  ========================================================== */
 
   const featuredNotice =
     filteredNotices.find(
       (notice) =>
-        notice.priority?.toLowerCase() === "urgent"
-    ) ||
+        getPriority(notice.priority) === "urgent"
+    ) ??
     filteredNotices.find(
       (notice) =>
-        notice.priority?.toLowerCase() === "important"
-    ) ||
+        getPriority(notice.priority) === "important"
+    ) ??
     filteredNotices[0];
 
-  const remainingNotices = filteredNotices.filter(
-    (notice) => notice.id !== featuredNotice?.id
-  );
+  const remainingNotices =
+    filteredNotices.filter(
+      (notice) =>
+        notice.id !== featuredNotice?.id
+    );
+
+  /* ==========================================================
+     CLEAR FILTERS
+  ========================================================== */
+
+  function clearFilters() {
+    setSearch("");
+    setCategory("All");
+    setPriority("All");
+  }
 
   return (
     <PublicShell>
       <main className="min-h-screen overflow-hidden bg-[var(--bg)]">
-
-        {/* =====================================================
+        {/* ====================================================
             HERO
-        ====================================================== */}
-        <section className="relative overflow-hidden bg-[var(--navy)] py-20 text-white">
+        ==================================================== */}
 
-          {/* Animated background glow */}
+        <section className="relative overflow-hidden bg-[var(--navy)] py-20 text-white">
+          {/* Background effects */}
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -left-24 top-10 h-72 w-72 animate-pulse rounded-full bg-blue-500/20 blur-3xl" />
+
             <div className="absolute right-0 top-0 h-96 w-96 animate-pulse rounded-full bg-cyan-400/10 blur-3xl" />
+
             <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-[var(--gold)]/10 blur-3xl" />
           </div>
 
           {/* Floating particles */}
           <div className="pointer-events-none absolute left-[8%] top-20 h-2 w-2 animate-bounce rounded-full bg-blue-300/70" />
+
           <div className="pointer-events-none absolute left-[22%] top-40 h-1.5 w-1.5 animate-pulse rounded-full bg-white/60" />
+
           <div className="pointer-events-none absolute right-[18%] top-24 h-2 w-2 animate-ping rounded-full bg-[var(--gold)]/70" />
+
           <div className="pointer-events-none absolute bottom-20 right-[30%] h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-300/70" />
 
           <div className="container-page relative">
-
             <div className="mx-auto max-w-4xl text-center">
-
               <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-5 py-2 text-xs font-black uppercase tracking-[0.2em] text-blue-100 shadow-lg backdrop-blur">
                 <Bell className="h-4 w-4 text-[var(--gold)]" />
                 Official College Notices
@@ -157,13 +234,13 @@ export default function NoticesPage() {
               </h1>
 
               <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-blue-100 sm:text-lg">
-                Get the latest academic announcements, examination
-                updates, admissions information, scholarships, events,
-                holidays and official college communications.
+                Get the latest academic announcements,
+                examination updates, admissions information,
+                scholarships, events, holidays and official
+                college communications.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/10 px-4 py-2 text-xs font-bold text-emerald-200 backdrop-blur">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
                   Live updates enabled
@@ -178,25 +255,22 @@ export default function NoticesPage() {
                   <Sparkles className="h-4 w-4 text-[var(--gold)]" />
                   Real-time campus portal
                 </div>
-
               </div>
             </div>
           </div>
 
-          {/* Bottom light sweep */}
+          {/* Bottom line */}
           <div className="pointer-events-none absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-transparent via-[var(--gold)]/70 to-transparent" />
         </section>
 
-        {/* =====================================================
+        {/* ====================================================
             LIVE STATUS
-        ====================================================== */}
+        ==================================================== */}
+
         <section className="border-b border-slate-200 bg-white">
           <div className="container-page py-5">
-
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
               <div className="flex items-center gap-3">
-
                 <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-[var(--blue)]">
                   <Megaphone className="h-5 w-5" />
                 </div>
@@ -210,32 +284,29 @@ export default function NoticesPage() {
                     Official announcements from the college
                   </div>
                 </div>
-
               </div>
 
               <div className="flex items-center gap-3">
-
                 <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+
                   {notices.data.length} published notices
                 </div>
 
                 <div className="hidden text-xs font-semibold text-slate-400 sm:block">
                   Updates automatically
                 </div>
-
               </div>
-
             </div>
           </div>
         </section>
 
-        {/* =====================================================
+        {/* ====================================================
             CONTENT
-        ====================================================== */}
+        ==================================================== */}
+
         <section className="section-space">
           <div className="container-page">
-
             <SectionTitle
               eyebrow="Campus updates"
               title="Latest notices"
@@ -245,10 +316,9 @@ export default function NoticesPage() {
             {/* =================================================
                 SEARCH & FILTERS
             ================================================== */}
+
             <div className="mt-10 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
-
                 {/* Search */}
                 <div className="relative flex-1">
                   <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
@@ -295,12 +365,13 @@ export default function NoticesPage() {
                     </option>
                   ))}
                 </select>
-
               </div>
 
-              {(search || category !== "All" || priority !== "All") && (
+              {/* Active filters */}
+              {(search ||
+                category !== "All" ||
+                priority !== "All") && (
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-
                   <span className="text-xs font-bold text-slate-400">
                     Active filters:
                   </span>
@@ -322,26 +393,37 @@ export default function NoticesPage() {
                   {priority !== "All" && (
                     <FilterBadge
                       text={`Priority: ${priority}`}
-                      onRemove={() => setPriority("All")}
+                      onRemove={() =>
+                        setPriority("All")
+                      }
                     />
                   )}
 
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="rounded-full px-3 py-1.5 text-xs font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+                  >
+                    Clear all
+                  </button>
                 </div>
               )}
-
             </div>
 
             {/* =================================================
                 ERROR
             ================================================== */}
+
             {notices.error && (
               <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+
                   <div>
                     <div className="font-extrabold">
                       Unable to load notices
                     </div>
+
                     <p className="mt-1 text-red-600">
                       {notices.error}
                     </p>
@@ -353,24 +435,23 @@ export default function NoticesPage() {
             {/* =================================================
                 LOADING
             ================================================== */}
+
             {notices.loading && (
               <div className="mt-10 grid gap-5 lg:grid-cols-2">
-
                 {[1, 2, 3, 4].map((item) => (
                   <NoticeSkeleton key={item} />
                 ))}
-
               </div>
             )}
 
             {/* =================================================
                 EMPTY
             ================================================== */}
+
             {!notices.loading &&
               !notices.error &&
-              !filteredNotices.length && (
+              filteredNotices.length === 0 && (
                 <div className="mt-10 rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
-
                   <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-blue-50 text-[var(--blue)]">
                     <FileText className="h-7 w-7" />
                   </div>
@@ -380,8 +461,8 @@ export default function NoticesPage() {
                   </h3>
 
                   <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-                    There are currently no published notices matching
-                    your search or selected filters.
+                    There are currently no published notices
+                    matching your search or selected filters.
                   </p>
 
                   {(search ||
@@ -389,27 +470,23 @@ export default function NoticesPage() {
                     priority !== "All") && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setSearch("");
-                        setCategory("All");
-                        setPriority("All");
-                      }}
+                      onClick={clearFilters}
                       className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[var(--blue)] px-5 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:shadow-lg"
                     >
                       Clear filters
                     </button>
                   )}
-
                 </div>
               )}
 
             {/* =================================================
                 FEATURED NOTICE
             ================================================== */}
+
             {!notices.loading &&
+              !notices.error &&
               featuredNotice && (
                 <div className="mt-10">
-
                   <div className="mb-4 flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-slate-400">
                     <Sparkles className="h-4 w-4 text-[var(--gold)]" />
                     Featured announcement
@@ -418,61 +495,63 @@ export default function NoticesPage() {
                   <FeaturedNotice
                     notice={featuredNotice}
                     onOpen={() =>
-                      setSelectedNotice(featuredNotice)
+                      setSelectedNotice(
+                        featuredNotice
+                      )
                     }
                   />
-
                 </div>
               )}
 
             {/* =================================================
                 NOTICE GRID
             ================================================== */}
+
             {!notices.loading &&
+              !notices.error &&
               remainingNotices.length > 0 && (
                 <div className="mt-10 grid gap-5 md:grid-cols-2">
-
-                  {remainingNotices.map((notice, index) => (
-                    <NoticeCard
-                      key={notice.id}
-                      notice={notice}
-                      index={index}
-                      onOpen={() =>
-                        setSelectedNotice(notice)
-                      }
-                    />
-                  ))}
-
+                  {remainingNotices.map(
+                    (notice, index) => (
+                      <NoticeCard
+                        key={notice.id}
+                        notice={notice}
+                        index={index}
+                        onOpen={() =>
+                          setSelectedNotice(notice)
+                        }
+                      />
+                    )
+                  )}
                 </div>
               )}
-
           </div>
         </section>
 
-        {/* =====================================================
+        {/* ====================================================
             CTA
-        ====================================================== */}
-        <section className="relative overflow-hidden bg-[var(--navy)] py-16 text-white">
+        ==================================================== */}
 
+        <section className="relative overflow-hidden bg-[var(--navy)] py-16 text-white">
           <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-500/20 blur-3xl" />
 
           <div className="container-page relative">
-
             <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
-
               <div>
                 <div className="text-xs font-black uppercase tracking-[0.18em] text-blue-200">
                   Stay connected
                 </div>
 
                 <h2 className="mt-2 max-w-2xl text-3xl font-black sm:text-4xl">
-                  Keep up with every important college announcement.
+                  Keep up with every important college
+                  announcement.
                 </h2>
 
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-blue-100">
-                  Check the official notice board regularly for
-                  examinations, admissions, academic updates,
-                  scholarships, holidays and campus activities.
+                  Check the official notice board regularly
+                  for examinations, admissions, academic
+                  updates, scholarships, holidays and campus
+                  activities.
                 </p>
               </div>
 
@@ -483,20 +562,21 @@ export default function NoticesPage() {
                 Contact College
                 <ArrowRight className="h-4 w-4" />
               </Link>
-
             </div>
           </div>
         </section>
-
       </main>
 
-      {/* =======================================================
+      {/* ======================================================
           NOTICE MODAL
-      ======================================================== */}
+      ======================================================= */}
+
       {selectedNotice && (
         <NoticeModal
           notice={selectedNotice}
-          onClose={() => setSelectedNotice(null)}
+          onClose={() =>
+            setSelectedNotice(null)
+          }
         />
       )}
     </PublicShell>
@@ -516,34 +596,35 @@ function FeaturedNotice({
 }) {
   const priority = getPriority(notice.priority);
 
+  const borderClass =
+    priority === "urgent"
+      ? "border-red-200"
+      : priority === "important"
+        ? "border-amber-200"
+        : "border-slate-200";
+
   return (
     <article
-      className={`group relative overflow-hidden rounded-3xl border bg-white shadow-lg transition duration-500 hover:-translate-y-1 hover:shadow-2xl ${
-        priority === "urgent"
-          ? "border-red-200"
-          : priority === "important"
-            ? "border-amber-200"
-            : "border-slate-200"
-      }`}
+      className={`group relative overflow-hidden rounded-3xl border bg-white shadow-lg transition duration-500 hover:-translate-y-1 hover:shadow-2xl ${borderClass}`}
     >
       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--blue)] via-[var(--gold)] to-cyan-400" />
 
       <div className="p-7 sm:p-9">
-
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-
           <div className="flex gap-5">
-
             <div className="hidden h-14 w-14 shrink-0 place-items-center rounded-2xl bg-blue-50 text-[var(--blue)] sm:grid">
               <Megaphone className="h-6 w-6" />
             </div>
 
             <div>
-
               <div className="flex flex-wrap items-center gap-2">
-                <PriorityBadge priority={notice.priority} />
+                <PriorityBadge
+                  priority={notice.priority}
+                />
 
-                <CategoryBadge category={notice.category} />
+                <CategoryBadge
+                  category={notice.category}
+                />
 
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
                   <CheckCircle2 className="h-3.5 w-3.5" />
@@ -552,7 +633,8 @@ function FeaturedNotice({
               </div>
 
               <h2 className="mt-4 text-2xl font-black leading-tight text-[var(--navy)] sm:text-3xl">
-                {notice.title || "College Announcement"}
+                {notice.title ||
+                  "College Announcement"}
               </h2>
 
               <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
@@ -560,7 +642,6 @@ function FeaturedNotice({
                   notice.content ||
                   "Official college announcement. Please check the complete notice for more information."}
               </p>
-
             </div>
           </div>
 
@@ -574,14 +655,15 @@ function FeaturedNotice({
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
             </button>
           </div>
-
         </div>
 
         <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-slate-100 pt-5 text-xs font-semibold text-slate-500">
-
           <span className="inline-flex items-center gap-2">
             <CalendarDays className="h-4 w-4 text-[var(--blue)]" />
-            {formatDate(notice.publishedAt || notice.createdAt)}
+            {formatDate(
+              notice.publishedAt ??
+                notice.createdAt
+            )}
           </span>
 
           {notice.author && (
@@ -595,9 +677,7 @@ function FeaturedNotice({
             <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
             Live
           </span>
-
         </div>
-
       </div>
     </article>
   );
@@ -623,21 +703,22 @@ function NoticeCard({
         animationDelay: `${index * 80}ms`,
       }}
     >
-      {/* Animated top line */}
       <div className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-gradient-to-r from-[var(--blue)] to-cyan-400 transition-transform duration-500 group-hover:scale-x-100" />
 
       <div className="flex items-start justify-between gap-4">
-
         <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-[var(--blue)] transition duration-500 group-hover:scale-110 group-hover:rotate-3">
           <Bell className="h-5 w-5" />
         </div>
 
-        <PriorityBadge priority={notice.priority} />
-
+        <PriorityBadge
+          priority={notice.priority}
+        />
       </div>
 
       <div className="mt-5">
-        <CategoryBadge category={notice.category} />
+        <CategoryBadge
+          category={notice.category}
+        />
 
         <h3 className="mt-3 line-clamp-2 text-xl font-black leading-tight text-[var(--navy)]">
           {notice.title || "College Notice"}
@@ -651,10 +732,13 @@ function NoticeCard({
       </div>
 
       <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
-
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
           <Clock3 className="h-4 w-4" />
-          {formatDate(notice.publishedAt || notice.createdAt)}
+
+          {formatDate(
+            notice.publishedAt ??
+              notice.createdAt
+          )}
         </div>
 
         <button
@@ -665,7 +749,6 @@ function NoticeCard({
           Read more
           <ArrowRight className="h-3.5 w-3.5" />
         </button>
-
       </div>
     </article>
   );
@@ -689,7 +772,9 @@ function NoticeModal({
     >
       <div
         className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white shadow-2xl"
-        onClick={(event) => event.stopPropagation()}
+        onClick={(event) =>
+          event.stopPropagation()
+        }
       >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white/95 px-6 py-4 backdrop-blur">
           <div className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">
@@ -707,10 +792,14 @@ function NoticeModal({
         </div>
 
         <div className="p-7 sm:p-9">
-
           <div className="flex flex-wrap gap-2">
-            <PriorityBadge priority={notice.priority} />
-            <CategoryBadge category={notice.category} />
+            <PriorityBadge
+              priority={notice.priority}
+            />
+
+            <CategoryBadge
+              category={notice.category}
+            />
           </div>
 
           <h2 className="mt-5 text-3xl font-black leading-tight text-[var(--navy)]">
@@ -720,7 +809,10 @@ function NoticeModal({
           <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-slate-400">
             <span className="inline-flex items-center gap-2">
               <CalendarDays className="h-4 w-4" />
-              {formatDate(notice.publishedAt || notice.createdAt)}
+              {formatDate(
+                notice.publishedAt ??
+                  notice.createdAt
+              )}
             </span>
 
             {notice.author && (
@@ -731,7 +823,7 @@ function NoticeModal({
             )}
           </div>
 
-          <div className="mt-8 rounded-2xl bg-slate-50 p-5 text-sm leading-8 text-slate-700">
+          <div className="mt-8 whitespace-pre-wrap rounded-2xl bg-slate-50 p-5 text-sm leading-8 text-slate-700">
             {notice.content ||
               notice.description ||
               "No additional information is available for this notice."}
@@ -740,10 +832,10 @@ function NoticeModal({
           {notice.expiresAt && (
             <div className="mt-5 flex items-center gap-2 rounded-xl border border-amber-100 bg-amber-50 p-4 text-xs font-bold text-amber-700">
               <Clock3 className="h-4 w-4" />
-              Notice validity: {formatDate(notice.expiresAt)}
+              Notice validity:{" "}
+              {formatDate(notice.expiresAt)}
             </div>
           )}
-
         </div>
       </div>
     </div>
@@ -751,7 +843,7 @@ function NoticeModal({
 }
 
 /* ============================================================
-   BADGES
+   PRIORITY BADGE
 ============================================================ */
 
 function PriorityBadge({
@@ -761,7 +853,10 @@ function PriorityBadge({
 }) {
   const value = getPriority(priority);
 
-  const styles = {
+  const styles: Record<
+    "urgent" | "important" | "normal",
+    string
+  > = {
     urgent:
       "bg-red-50 text-red-700 border-red-100",
     important:
@@ -791,6 +886,10 @@ function PriorityBadge({
   );
 }
 
+/* ============================================================
+   CATEGORY BADGE
+============================================================ */
+
 function CategoryBadge({
   category,
 }: {
@@ -803,6 +902,10 @@ function CategoryBadge({
     </span>
   );
 }
+
+/* ============================================================
+   FILTER BADGE
+============================================================ */
 
 function FilterBadge({
   text,
@@ -832,10 +935,12 @@ function NoticeSkeleton() {
     <div className="animate-pulse rounded-2xl border border-slate-200 bg-white p-6">
       <div className="flex justify-between">
         <div className="h-11 w-11 rounded-xl bg-slate-200" />
+
         <div className="h-6 w-20 rounded-full bg-slate-200" />
       </div>
 
       <div className="mt-5 h-4 w-24 rounded bg-slate-200" />
+
       <div className="mt-4 h-7 w-4/5 rounded bg-slate-200" />
 
       <div className="mt-4 space-y-2">
@@ -860,29 +965,110 @@ function getPriority(
 ): "urgent" | "important" | "normal" {
   const value = priority?.toLowerCase();
 
-  if (value === "urgent") return "urgent";
-  if (value === "important") return "important";
+  if (value === "urgent") {
+    return "urgent";
+  }
+
+  if (value === "important") {
+    return "important";
+  }
 
   return "normal";
 }
 
-function formatDate(value?: string) {
-  if (!value) return "Recently published";
+/* ============================================================
+   DATE HELPERS
+============================================================ */
 
-  try {
-    const date = new Date(value);
+function convertToDate(
+  value: NoticeDateValue
+): Date | null {
+  if (!value) {
+    return null;
+  }
 
-    if (Number.isNaN(date.getTime())) {
+  if (value instanceof Date) {
+    return value;
+  }
+
+  if (
+    typeof value === "object" &&
+    value !== null
+  ) {
+    const possibleTimestamp =
+      value as {
+        toDate?: () => Date;
+        toMillis?: () => number;
+        seconds?: number;
+      };
+
+    if (
+      typeof possibleTimestamp.toDate ===
+      "function"
+    ) {
+      try {
+        return possibleTimestamp.toDate();
+      } catch {
+        // Continue to other formats.
+      }
+    }
+
+    if (
+      typeof possibleTimestamp.toMillis ===
+      "function"
+    ) {
+      try {
+        return new Date(
+          possibleTimestamp.toMillis()
+        );
+      } catch {
+        // Continue to other formats.
+      }
+    }
+
+    if (
+      typeof possibleTimestamp.seconds ===
+      "number"
+    ) {
+      return new Date(
+        possibleTimestamp.seconds * 1000
+      );
+    }
+  }
+
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+
+    return null;
+  }
+
+  return null;
+}
+
+function formatDate(
+  value: NoticeDateValue
+): string {
+  if (!value) {
+    return "Recently published";
+  }
+
+  const date = convertToDate(value);
+
+  if (!date) {
+    if (typeof value === "string") {
       return value;
     }
 
-    return date.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return value;
+    return "Recently published";
   }
-}
 
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}

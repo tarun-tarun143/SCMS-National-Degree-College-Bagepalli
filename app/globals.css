@@ -1,41 +1,239 @@
 @import "tailwindcss";
 
+/*
+|--------------------------------------------------------------------------
+| Tailwind Dark Mode
+|--------------------------------------------------------------------------
+| Use the .dark class instead of relying only on system media.
+*/
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --navy: #0f2a43;
   --blue: #1d4ed8;
   --gold: #d4a72c;
+
   --slate: #475569;
+
   --bg: #f7f9fc;
   --surface: #ffffff;
+
   --text: #0f172a;
   --muted: #64748b;
+
   --line: #e2e8f0;
+
   --success: #16a34a;
   --warning: #f59e0b;
   --danger: #dc2626;
 }
 
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html.dark {
+  --navy: #e2e8f0;
+  --blue: #60a5fa;
+  --gold: #f4c95d;
+
+  --slate: #cbd5e1;
+
+  --bg: #020617;
+  --surface: #0f172a;
+
+  --text: #f8fafc;
+  --muted: #94a3b8;
+
+  --line: #334155;
+
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--bg);
+}
+
 body {
   margin: 0;
-  background: var(--bg);
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(59, 130, 246, 0.04),
+      transparent 30%
+    ),
+    var(--bg);
   color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
-}
-a { color: inherit; text-decoration: none; }
-button, input, select, textarea { font: inherit; }
-::selection { background: #dbeafe; color: var(--navy); }
 
-.container-page { width: min(1180px, calc(100% - 32px)); margin-inline: auto; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 8px 28px rgba(15,42,67,.06); }
-.section-space { padding: 76px 0; }
-.text-balance { text-wrap: balance; }
-.gradient-academic { background: radial-gradient(circle at 15% 10%, rgba(212,167,44,.18), transparent 24%), linear-gradient(135deg, #0f2a43 0%, #123b65 60%, #1d4ed8 100%); }
-.noise { position: relative; overflow: hidden; }
-.noise::after { content:""; position:absolute; inset:0; opacity:.12; pointer-events:none; background-image: radial-gradient(rgba(255,255,255,.55) .7px, transparent .7px); background-size: 7px 7px; }
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  transition:
+    background-color 220ms ease,
+    color 220ms ease;
+}
+
+html.dark body {
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(59, 130, 246, 0.08),
+      transparent 30%
+    ),
+    #020617;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: #dbeafe;
+  color: #0f2a43;
+}
+
+html.dark ::selection {
+  background: #1e3a8a;
+  color: #eff6ff;
+}
+
+.container-page {
+  width: min(
+    1180px,
+    calc(100% - 32px)
+  );
+  margin-inline: auto;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+
+  box-shadow:
+    0 8px 28px
+    rgba(15, 42, 67, 0.06);
+
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+html.dark .card {
+  box-shadow:
+    0 16px 40px
+    rgba(0, 0, 0, 0.25);
+}
+
+.section-space {
+  padding: 76px 0;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.gradient-academic {
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      rgba(212, 167, 44, 0.18),
+      transparent 24%
+    ),
+    linear-gradient(
+      135deg,
+      #0f2a43 0%,
+      #123b65 60%,
+      #1d4ed8 100%
+    );
+}
+
+.noise {
+  position: relative;
+  overflow: hidden;
+}
+
+.noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  pointer-events: none;
+
+  background-image:
+    radial-gradient(
+      rgba(255, 255, 255, 0.55) 0.7px,
+      transparent 0.7px
+    );
+
+  background-size: 7px 7px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+input[type="date"],
+input[type="time"] {
+  color-scheme: light;
+}
+
+html.dark input[type="date"],
+html.dark input[type="time"] {
+  color-scheme: dark;
+}
+
+select {
+  color-scheme: light;
+}
+
+html.dark select {
+  color-scheme: dark;
+}
 
 @media (max-width: 640px) {
-  .container-page { width: min(100% - 22px, 1180px); }
-  .section-space { padding: 54px 0; }
+  .container-page {
+    width: min(
+      calc(100% - 22px),
+      1180px
+    );
+  }
+
+  .section-space {
+    padding: 54px 0;
+  }
+}
+
+@media print {
+  html,
+  body {
+    background: white !important;
+    color: black !important;
+  }
 }

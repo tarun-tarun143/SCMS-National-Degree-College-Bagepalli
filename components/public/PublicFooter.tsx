@@ -1,3 +1,50 @@
-import Link from "next/link";
-import { Code2, Mail, MapPin, Phone } from "lucide-react";
-export default function PublicFooter(){const year=new Date().getFullYear();return <footer className="bg-[var(--navy)] text-slate-200"><div className="container-page grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-4"><div><div className="flex items-center gap-3"><div className="grid h-11 w-11 place-items-center rounded-xl bg-white/10 text-[var(--gold)] font-black">NDC</div><div><div className="font-extrabold text-white">THE NATIONAL DEGREE COLLEGE</div><div className="text-xs text-slate-400">BAGEPALLI</div></div></div><p className="mt-5 max-w-sm text-sm leading-6 text-slate-400">Smart College Management System — a unified digital platform for students, faculty and institutional administration.</p></div><div><h3 className="font-bold text-white">Quick Links</h3><div className="mt-4 grid gap-3 text-sm text-slate-400">{[["About","/about"],["Courses","/courses"],["Departments","/departments"],["Admissions","/admissions"]].map(([t,h])=><Link key={h} href={h} className="hover:text-white">{t}</Link>)}</div></div><div><h3 className="font-bold text-white">Portal</h3><div className="mt-4 grid gap-3 text-sm text-slate-400">{[["Student Login","/login"],["Faculty Login","/login"],["Admin Login","/login"],["Notices","/notices"]].map(([t,h])=><Link key={t} href={h} className="hover:text-white">{t}</Link>)}</div></div><div><h3 className="font-bold text-white">Contact</h3><div className="mt-4 grid gap-3 text-sm text-slate-400"><div className="flex gap-2"><MapPin className="mt-0.5 h-4 w-4 text-[var(--gold)]"/><span>Bagepalli, Karnataka</span></div><div className="flex gap-2"><Phone className="h-4 w-4 text-[var(--gold)]"/><span>College office contact</span></div><div className="flex gap-2"><Mail className="h-4 w-4 text-[var(--gold)]"/><span>Official college email</span></div></div></div></div><div className="border-t border-white/10"><div className="container-page flex flex-col gap-2 py-5 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between"><span>© {year} The National Degree College, Bagepalli · Smart College Management System</span><span className="inline-flex items-center gap-2 font-semibold text-slate-300"><Code2 className="h-4 w-4 text-[var(--gold)]"/> Made by <span className="text-white">Tarun D</span></span></div></div></footer>}
+"use client";
+
+import { ShieldCheck } from "lucide-react";
+
+type PublicFooterProps = {
+  role?: string;
+};
+
+export default function PublicFooter({
+  role = "SCMS",
+}: PublicFooterProps) {
+  const safeRole =
+    typeof role === "string" && role.trim()
+      ? role.trim()
+      : "SCMS";
+
+  const roleLabel =
+    safeRole.charAt(0).toUpperCase() +
+    safeRole.slice(1);
+
+  return (
+    <footer className="border-t border-slate-200 bg-white px-3 py-2 md:px-6">
+      <div className="flex min-h-8 items-center justify-between gap-3 text-[9px] text-slate-400">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <ShieldCheck className="h-3 w-3 shrink-0 text-emerald-500" />
+
+          <span className="truncate font-semibold">
+            SCMS · {roleLabel}
+          </span>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+
+          <span>Online</span>
+
+          <span className="hidden sm:inline">•</span>
+
+          <span className="hidden sm:inline">
+            © {new Date().getFullYear()}
+          </span>
+
+          <span className="hidden md:inline">
+            The National Degree College, Bagepalli
+          </span>
+        </div>
+      </div>
+    </footer>
+  );
+}

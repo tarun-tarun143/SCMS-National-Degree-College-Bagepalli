@@ -3,411 +3,177 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ==================================================
-    // HELPER FUNCTIONS
-    // ==================================================
-
-    function signedIn() {
-      return request.auth != null;
-    }
-
-    function userDoc() {
-      return get(
-        /databases/$(database)/documents/users/$(request.auth.uid)
-      );
-    }
-
-    function activeUser() {
-      return signedIn()
-        && userDoc().data.status == "active";
-    }
-
-    function isAdmin() {
-      return activeUser()
-        && userDoc().data.role == "admin";
-    }
-
-    function isFaculty() {
-      return activeUser()
-        && userDoc().data.role == "faculty";
-    }
-
-    function isStudent() {
-      return activeUser()
-        && userDoc().data.role == "student";
-    }
-
-
-    // ==================================================
-    // USERS
-    // ==================================================
+    /* ============================================================
+       USERS
+       ============================================================ */
 
     match /users/{userId} {
-
-      // User can read their own profile.
-      // Admin can read all users.
-      allow read: if isAdmin()
-        || (
-          signedIn()
-          && request.auth.uid == userId
-        );
-
-      // New Google users can create only their
-      // own pending account.
-      allow create: if signedIn()
-        && request.auth.uid == userId
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.role == "pending"
-        && request.resource.data.status == "pending";
-
-      // Only Admin can modify or delete users.
-      allow update, delete: if isAdmin();
+      allow read, write: if request.auth != null;
     }
 
-
-    // ==================================================
-    // NOTICES
-    // ==================================================
-
-    match /notices/{document} {
-
-      // Public can read published notices.
-      allow read: if resource.data.status == "published";
-
-      // Admin manages notices.
-      allow create, update, delete: if isAdmin();
-    }
-
-
-    // ==================================================
-    // COURSES
-    // ==================================================
-
-    match /courses/{document} {
-
-      // Public website.
-      allow read: if true;
-
-      // Admin manages courses.
-      allow create, update, delete: if isAdmin();
-    }
-
-
-    // ==================================================
-    // DEPARTMENTS
-    // ==================================================
-
-    match /departments/{departmentId} {
-
-      // Public website realtime listener.
-      allow read: if true;
-
-      // Admin manages departments.
-      allow create, update, delete: if isAdmin();
-    }
-
-
-    // ==================================================
-    // EVENTS
-    // ==================================================
-
-    match /events/{document} {
-
-      // Public website realtime listener.
-      allow read: if true;
-
-      // Admin manages events.
-      allow create, update, delete: if isAdmin();
-    }
-
-
-    // ==================================================
-    // CONTACT QUERIES
-    // ==================================================
-
-    match /queries/{queryId} {
-
-      // Only Admin can read contact queries.
-      allow read: if isAdmin();
-
-      // Public/API does not write directly from browser.
-      // Next.js API uses Firebase Admin SDK.
-      allow create, update, delete: if false;
-    }
-
-
-    // ==================================================
-    // ATTENDANCE
-    // ==================================================
-
-    match /attendance/{attendanceId} {
-
-      // Admin sees everything.
-      allow read: if isAdmin();
-
-      // Faculty sees attendance they marked.
-      allow read: if isFaculty()
-        && resource.data.facultyId == request.auth.uid;
-
-      // Student sees only their attendance.
-      allow read: if isStudent()
-        && resource.data.studentUserId == request.auth.uid;
-
-      // Admin can manage all attendance.
-      allow create, update, delete: if isAdmin();
-
-      // Faculty can create their own attendance.
-      allow create: if isFaculty()
-        && request.resource.data.facultyId == request.auth.uid
-        && request.resource.data.markedBy == request.auth.uid;
-
-      // Faculty can update their own attendance.
-      allow update: if isFaculty()
-        && resource.data.facultyId == request.auth.uid
-        && request.resource.data.facultyId == request.auth.uid;
-
-      // Faculty cannot delete.
-      allow delete: if false;
-    }
-
-
-    // ==================================================
-    // STUDENTS
-    // ==================================================
+    /* ============================================================
+       STUDENTS
+       ============================================================ */
 
     match /students/{studentId} {
-
-      // Admin and Faculty can read students.
-      // Student can read their own record.
-      allow read: if isAdmin()
-        || isFaculty()
-        || (
-          isStudent()
-          && resource.data.userId == request.auth.uid
-        );
-
-      // Admin manages students.
-      allow create, update, delete: if isAdmin();
+      allow read, write: if request.auth != null;
     }
 
+    /* ============================================================
+       FACULTY
+       ============================================================ */
 
-    // ==================================================
-// FACULTY
-// ==================================================
-
-match /faculty/{facultyId} {
-
-  // Public faculty directory.
-  allow read: if true;
-
-  // Only Admin can manage faculty records.
-  allow create, update, delete: if isAdmin();
-}
-
-
-    // ==================================================
-    // SUBJECTS
-    // ==================================================
-
-    match /subjects/{subjectId} {
-
-      // Active academic users can read subjects.
-      allow read: if isAdmin()
-        || isFaculty()
-        || isStudent();
-
-      // Admin manages subjects.
-      allow create, update, delete: if isAdmin();
+    match /faculty/{facultyId} {
+      allow read, write: if request.auth != null;
     }
 
+    /* ============================================================
+       ACADEMIC DATA
+       ============================================================ */
 
-    // ==================================================
-    // TIMETABLE
-    // ==================================================
-
-    match /timetable/{document} {
-
-      // Active academic users can read timetable.
-      allow read: if isAdmin()
-        || isFaculty()
-        || isStudent();
-
-      // Admin manages timetable.
-      allow create, update, delete: if isAdmin();
+    match /subjects/{id} {
+      allow read, write: if request.auth != null;
     }
 
-
-    // ==================================================
-    // ASSIGNMENTS
-    // ==================================================
-
-    match /assignments/{assignmentId} {
-
-      // Active academic users can read assignments.
-      allow read: if isAdmin()
-        || isFaculty()
-        || isStudent();
-
-      // Admin and Faculty can manage assignments.
-      allow create, update, delete: if isAdmin()
-        || isFaculty();
+    match /attendance/{id} {
+      allow read, write: if request.auth != null;
     }
 
-
-    // ==================================================
-    // SUBMISSIONS
-    // ==================================================
-
-    match /submissions/{submissionId} {
-
-      // Admin and Faculty can read all.
-      // Student can read own submission.
-      allow read: if isAdmin()
-        || isFaculty()
-        || (
-          isStudent()
-          && resource.data.studentUserId == request.auth.uid
-        );
-
-      // Student can create only own submission.
-      allow create: if isStudent()
-        && request.resource.data.studentUserId == request.auth.uid;
-
-      // Admin and Faculty can update.
-      // Student can update own submission.
-      allow update: if isAdmin()
-        || isFaculty()
-        || (
-          isStudent()
-          && resource.data.studentUserId == request.auth.uid
-        );
-
-      // Only Admin can delete.
-      allow delete: if isAdmin();
+    match /timetable/{id} {
+      allow read, write: if request.auth != null;
     }
 
-
-    // ==================================================
-    // EXAMS
-    // ==================================================
-
-    match /exams/{examId} {
-
-      // Active academic users can read exams.
-      allow read: if isAdmin()
-        || isFaculty()
-        || isStudent();
-
-      // Admin manages exams.
-      allow create, update, delete: if isAdmin();
+    match /assignments/{id} {
+      allow read, write: if request.auth != null;
     }
 
-
-    // ==================================================
-    // RESULTS
-    // ==================================================
-
-    match /results/{resultId} {
-
-      // Admin and Faculty can read all.
-      // Student can read own results.
-      allow read: if isAdmin()
-        || isFaculty()
-        || (
-          isStudent()
-          && resource.data.studentUserId == request.auth.uid
-        );
-
-      // Admin and Faculty can manage results.
-      allow create, update, delete: if isAdmin()
-        || isFaculty();
+    match /submissions/{id} {
+      allow read, write: if request.auth != null;
     }
 
-
-    // ==================================================
-    // FEES
-    // ==================================================
-
-    match /fees/{feeId} {
-
-      // Admin can read all.
-      // Student can read own fees.
-      allow read: if isAdmin()
-        || (
-          isStudent()
-          && resource.data.studentUserId == request.auth.uid
-        );
-
-      // Admin manages fees.
-      allow create, update, delete: if isAdmin();
+    match /exams/{id} {
+      allow read, write: if request.auth != null;
     }
 
-
-    // ==================================================
-    // LEAVE REQUESTS
-    // ==================================================
-
-    match /leaves/{leaveId} {
-
-      // Admin and Faculty can read all.
-      // Student can read own requests.
-      allow read: if isAdmin()
-        || isFaculty()
-        || (
-          isStudent()
-          && resource.data.studentUserId == request.auth.uid
-        );
-
-      // Student can create own request.
-      allow create: if isStudent()
-        && request.resource.data.studentUserId == request.auth.uid;
-
-      // Admin and Faculty can update.
-      // Student can update own request.
-      allow update: if isAdmin()
-        || isFaculty()
-        || (
-          isStudent()
-          && resource.data.studentUserId == request.auth.uid
-        );
-
-      // Only Admin can delete.
-      allow delete: if isAdmin();
+    match /results/{id} {
+      allow read, write: if request.auth != null;
     }
 
-
-    // ==================================================
-    // NOTIFICATIONS
-    // ==================================================
-
-    match /notifications/{notificationId} {
-
-      // Admin can read all.
-      // User can read own notifications.
-      allow read: if isAdmin()
-        || (
-          signedIn()
-          && resource.data.userId == request.auth.uid
-        );
-
-      // Admin manages notifications.
-      allow create, update, delete: if isAdmin();
+    match /fees/{id} {
+      allow read, write: if request.auth != null;
     }
 
+    /* ============================================================
+       PUBLIC WEBSITE COLLECTIONS
+       ============================================================ */
 
-    // ==================================================
-    // AUDIT LOGS
-    // ==================================================
-
-    match /auditLogs/{logId} {
-
-      // Admin can read audit logs.
-      allow read: if isAdmin();
-
-      // Server-side only.
-      allow create, update, delete: if false;
+    match /notices/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
 
+    match /events/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    /* ============================================================
+       OTHER SCMS COLLECTIONS
+       ============================================================ */
+
+    match /departments/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /courses/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /notifications/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /leaveRequests/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /complaints/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    /* ============================================================
+       ADMIN QUERIES
+       ============================================================ */
+
+    match /queries/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    /* ============================================================
+       ADMIN REPORTS
+       ============================================================ */
+
+    match /reports/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    /* ============================================================
+       ADMIN MESSAGES
+       ============================================================ */
+
+    match /messages/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    /* ============================================================
+       AUDIT LOGS
+       ============================================================ */
+
+    match /auditLogs/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    /* ============================================================
+       SYSTEM SETTINGS
+       ============================================================ */
+
+    match /settings/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    /* ============================================================
+       CERTIFICATES
+       ============================================================ */
+
+    match /certificates/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    /* ============================================================
+       MATERIALS
+       ============================================================ */
+
+    match /materials/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    /* ============================================================
+       LIBRARY
+       ============================================================ */
+
+    match /library/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    /* ============================================================
+       DEFAULT DENY
+       ============================================================ */
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }
 
